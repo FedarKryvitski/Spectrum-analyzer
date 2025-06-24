@@ -1,38 +1,23 @@
 #ifndef AUDIORECORDER_H
 #define AUDIORECORDER_H
 
-#include <QAudioSource>
+#include <alsa/asoundlib.h>
 #include <QAudioDevice>
-#include <QBuffer>
 #include <QByteArray>
 #include <QObject>
 
-#include "iobuffer.h"
-
-class AudioRecorder : public QObject
-{
-    Q_OBJECT
-
+class AudioRecorder {
 public:
-    explicit AudioRecorder(QObject* parent = nullptr) noexcept;
+    AudioRecorder() noexcept = default;
 
     void setDevice(const std::string& device);
-    void startRecording();
-    void stopRecording();
-    std::vector<float> getData();
-
-signals:
-    void dataReceived();
-
-public slots:
-    void onDataReceived();
+    void start();
+    void stop();
+    std::vector<float> getData(int samples);
 
 private:
-    std::unique_ptr<QAudioSource> m_source;
-    QAudioFormat m_format;
-    QAudioDevice m_device;
-    IOBuffer m_buffer;
-    bool m_isRecording;
+    snd_pcm_t *m_captureHandle;
+    std::string m_device{"default"};
 };
 
 #endif // AUDIORECORDER_H

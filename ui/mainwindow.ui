@@ -83,25 +83,6 @@
      <number>0</number>
     </property>
    </widget>
-   <widget class="QSlider" name="sliderVolume">
-    <property name="geometry">
-     <rect>
-      <x>600</x>
-      <y>330</y>
-      <width>211</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>100</number>
-    </property>
-    <property name="value">
-     <number>80</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Orientation::Horizontal</enum>
-    </property>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

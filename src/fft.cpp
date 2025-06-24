@@ -1,14 +1,13 @@
 #include "fft.h"
 #include <cmath>
-#include <numbers>
 #include <complex>
 #include <span>
 #include <QVector>
 
-constexpr static double PI = std::numbers::pi_v<double>;
-
-QVector<double> FFT::computeDFT(const std::span<double>& signal, const std::span<double>& frequencies) {
-    constexpr static double twoPi = 2 * PI;
+QVector<double> FFT::computeDFT(const std::span<double>& signal,
+                                const std::span<double>& frequencies)
+{
+    constexpr static double twoPi = 2 * M_PI;
 
     const int signal_size = signal.size();
     const int result_size = frequencies.size();

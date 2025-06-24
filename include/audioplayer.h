@@ -2,29 +2,21 @@
 #define AUDIOPLAYER_H
 
 #include <QByteArray>
-#include <QAudioSink>
-#include <QBuffer>
+#include <alsa/asoundlib.h>
 #include <span>
 
-class AudioPlayer : public QObject
-{
-    Q_OBJECT
-
+class AudioPlayer {
 public:
-    explicit AudioPlayer(QObject* parent = nullptr) noexcept;
-    virtual ~AudioPlayer() = default;
+    AudioPlayer() noexcept = default;
 
     void setDevice(const std::string& device);
-    void startPlaying();
-    void stopPlaying();
+    void start();
+    void stop();
     void playSound(const std::span<float>& data);
 
 private:
-    std::unique_ptr<QAudioSink> m_sink;
-    QBuffer m_buffer;
-    QAudioDevice m_device;
-    QAudioFormat m_format;
-    bool m_isPlaying;
+    snd_pcm_t *playback_handle;
+    std::string m_device{"default"};
 };
 
 #endif // AUDIOPLAYER_H

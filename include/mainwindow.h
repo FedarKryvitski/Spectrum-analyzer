@@ -5,11 +5,11 @@
 #include <QAudioSink>
 #include <QAudioSource>
 #include <QTimer>
+#include <thread>
 #include "audiorecorder.h"
 #include "audioplayer.h"
 #include "frequencyplot.h"
 #include "amplitudeplot.h"
-#include "volumeprocessor.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -26,21 +26,20 @@ public:
     ~MainWindow();
 
 private slots:
-    void onBytesRead();
     void on_buttonStart_clicked();
     void on_buttonStop_clicked();
-    void onVolumeChange(int value);
 
 private:
     Ui::MainWindow *ui;
     AudioRecorder m_recorder;
     AudioPlayer m_player;
-    VolumeProcessor m_volume;
     FrequencyPlot m_frequencyPlot;
     AmplitudePlot m_amplitudePlot;
 
-    QTimer m_amplitudeTimer, m_frequencyTimer;
-    bool m_isRunning;
+    std::unique_ptr<std::jthread> m_soundThread;
+    std::atomic<bool> m_isRunning;
+    std::mutex m_plotMutex;
+    QTimer m_plotTimer;
 
 private:
     void startRecording();

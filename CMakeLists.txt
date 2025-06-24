@@ -38,6 +38,8 @@ find_package(Qt6 REQUIRED COMPONENTS
     Concurrent
 )
 
+find_package(ALSA REQUIRED)
+
 # ================= Executable Target =================
 qt_add_executable(${PROJECT_NAME}
     MANUAL_FINALIZATION
@@ -71,6 +73,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Multimedia
     Qt${QT_VERSION_MAJOR}::Concurrent
+    ALSA::ALSA
     QCustomPlot
 )
 

@@ -29,7 +29,6 @@ void AmplitudePlot::initialize(QCustomPlot* parent)
 
 void AmplitudePlot::addData(const std::span<float>& source)
 {
-    std::lock_guard<std::mutex> lock(m_bufferMutex);
     if constexpr (CHANNELS == 2) {
         auto monoSource = AudioConverter::createMono(source);
         std::ranges::for_each(monoSource, [this](float elem){
@@ -66,7 +65,6 @@ void AmplitudePlot::updatePlot()
 
     bool needsUpdate = false;
     {
-        std::lock_guard<std::mutex> lock(m_bufferMutex);
         needsUpdate = m_buffer.size() > 0;
         if (needsUpdate){
             updateAxisY();
@@ -80,8 +78,8 @@ void AmplitudePlot::updatePlot()
     }
 }
 
-void AmplitudePlot::initializeAxisX(){
-
+void AmplitudePlot::initializeAxisX()
+{
     QVector<double> result(VEC_AMPLITUDE_SIZE);
     constexpr float h = PLOT_DURATION / VEC_AMPLITUDE_SIZE;
 
@@ -93,6 +91,7 @@ void AmplitudePlot::initializeAxisX(){
     m_axisX = std::move(result);
 }
 
-void AmplitudePlot::initializeAxisY(){
+void AmplitudePlot::initializeAxisY()
+{
     m_axisY.resize(VEC_AMPLITUDE_SIZE, 0);
 }

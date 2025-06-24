@@ -3,6 +3,16 @@
 #include <algorithm>
 #include "fft.h"
 
+namespace {
+
+constexpr static int CHANNELS = 2;
+constexpr static double MIN_FREQUENCY_X = 20.0;
+constexpr static double MAX_FREQUENCY_X = 20'000.0;
+constexpr static int FREQUENCY_BUFFER_SIZE = 4096;
+constexpr static int VEC_FREQUENCY_SIZE = 1024;
+
+}
+
 FrequencyPlot::FrequencyPlot() noexcept
     : m_buffer(FREQUENCY_BUFFER_SIZE)
     , m_axisX(VEC_FREQUENCY_SIZE, 0)
@@ -23,7 +33,6 @@ void FrequencyPlot::initialize(QCustomPlot* parent)
 
 void FrequencyPlot::addData(const std::span<float>& source)
 {
-    std::lock_guard<std::mutex> lock(m_bufferMutex);
     if constexpr (CHANNELS == 2) {
         auto monoSource = AudioConverter::createMono(source);
         std::ranges::for_each(monoSource, [this](float elem){
@@ -59,7 +68,6 @@ void FrequencyPlot::updatePlot()
 
     bool needsUpdate = false;
     {
-        std::lock_guard<std::mutex> lock(m_bufferMutex);
         needsUpdate = m_buffer.size() > 0;
         if (needsUpdate){
             updateAxisY();
@@ -75,15 +83,15 @@ void FrequencyPlot::updatePlot()
 }
 
 void FrequencyPlot::initializeAxisX(){
-    constexpr double f_min = 20.0;
-    constexpr double f_max = 20000.0;
     constexpr double exponent = 0.75;
 
-    for (int i = 0; i < VEC_FREQUENCY_SIZE; ++i) {
+    std::ranges::generate(m_axisX, [i=0]() mutable {
         double normalized = static_cast<double>(i) / (VEC_FREQUENCY_SIZE - 1);
         double adjusted = std::pow(normalized, exponent);
-        m_axisX[i] = f_min * std::pow(f_max / f_min, adjusted);
-    }
+        double result = MIN_FREQUENCY_X * std::pow(MAX_FREQUENCY_X / MIN_FREQUENCY_X, adjusted);
+        ++i;
+        return result;
+    });
 }
 
 void FrequencyPlot::initializeAxisY(){
