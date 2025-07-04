@@ -91,7 +91,6 @@ void AmplitudePlot::initializeAxisX()
     m_axisX = std::move(result);
 }
 
-void AmplitudePlot::initializeAxisY()
-{
+void AmplitudePlot::initializeAxisY(){
     m_axisY.resize(VEC_AMPLITUDE_SIZE, 0);
 }

@@ -53,12 +53,7 @@ void MainWindow::startRecording()
 
         while (m_isRunning)
         {
-            std::vector<float> data2 = m_recorder.getData(256);
-            std::vector<float> data(256);
-            static int c = 0;
-            for (int i = 0; i < 256; ++i){
-                data[i] = 0.3 * std::sin(c++ * 440.0 * 2 * M_PI / 44100);
-            }
+            std::vector<float> data = m_recorder.getData();
             {
                 std::lock_guard<std::mutex> lock(m_plotMutex);
                 m_frequencyPlot.addData(data);

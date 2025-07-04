@@ -7,7 +7,7 @@
 namespace FFT {
 
 QVector<double> computeDFT(const std::span<double>& signal,
-                                      const std::span<double>& frequencies);
+                           const std::span<double>& frequencies);
 
 constexpr int SAMPLE_RATE = 44100;
 
