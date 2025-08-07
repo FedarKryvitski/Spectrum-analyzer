@@ -50,12 +50,12 @@ qt_add_executable(${PROJECT_NAME}
 
 # ================= IDE File Grouping =================
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src
-    PREFIX "Source Files"
+    PREFIX "Sources"
     FILES ${PROJECT_SOURCES}
 )
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include
-    PREFIX "Header Files"
+    PREFIX "Headers"
     FILES ${PROJECT_HEADERS}
 )
 
