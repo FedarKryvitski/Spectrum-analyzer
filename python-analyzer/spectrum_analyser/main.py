@@ -1,5 +1,5 @@
-from analyzer import *
-from graph import *
+from analyzer import AudioAnalyzer
+from graph import AmplitudeGraph
 
 audio_files = [
     ("sounds/volkswagen.wav", "blue", "Volkswagen"),
@@ -7,7 +7,7 @@ audio_files = [
 ]
 
 if __name__ == "__main__":
-    analyzer = AudioAnalyzer()
+    analyzer = AudioAnalyzer(num_bins=100)
     graph = AmplitudeGraph()
 
     graph.set_title('Comparison of Audio Spectra')

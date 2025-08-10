@@ -22,13 +22,14 @@ class AudioAnalyzer:
         
         if len(audio_data.shape) > 1:
             audio_data = audio_data.mean(axis=1)
-            
-        audio_data = audio_data.astype(np.float32) / np.max(np.abs(audio_data))
+              
+        audio_data = audio_data.astype(np.float32) / 32768
         return sample_rate, audio_data
 
     def compute_spectrum(self, audio_data, sample_rate):
         """Compute FFT spectrum of audio signal"""
         spectrum = fft(audio_data)
+        spectrum = np.abs(spectrum) / len(spectrum)
         freqs = fftfreq(len(audio_data), d=1/sample_rate)
         return freqs, spectrum
 
@@ -37,7 +38,6 @@ class AudioAnalyzer:
         valid_mask = (freqs >= self.min_freq) & (freqs <= self.max_freq)
         filtered_freqs = freqs[valid_mask]
         filtered_amps = spectrum[valid_mask]
-        filtered_amps = np.abs(spectrum[valid_mask]) / len(filtered_amps)
         return filtered_freqs, filtered_amps
 
     def create_frequency_bins(self):
@@ -46,19 +46,19 @@ class AudioAnalyzer:
                          np.log10(self.max_freq), 
                          num=self.num_bins + 1)
 
-    def bin_amplitudes(self, freqs, amps, bins):
+    def bin_amplitudes(self, frequences, amplitudes, bins):
         """Bin amplitudes into frequency ranges"""
-        bin_indices = np.digitize(freqs, bins) - 1
+        indexes = np.digitize(frequences, bins) - 1
         binned_amps = np.zeros(self.num_bins)
         counts = np.zeros(self.num_bins)
         
-        for idx, amp in zip(bin_indices, amps):
+        for idx, amp in zip(indexes, amplitudes):
             if 0 <= idx < self.num_bins:
                 binned_amps[idx] += amp
                 counts[idx] += 1
         
         with np.errstate(divide='ignore', invalid='ignore'):
-            binned_amps = np.where(counts > 0, binned_amps / counts, 0.0005)
+            binned_amps = np.where(counts > 0, binned_amps / counts, 0)
             
         return binned_amps
 
