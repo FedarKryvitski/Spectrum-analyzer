@@ -1,81 +1,108 @@
 import numpy as np
-from scipy.fft import fft, fftfreq
-from scipy.io import wavfile
+from scipy.fft import fft, ifft, fftfreq
+
+DEFAULT_SAMPLE_RATE = 48000
+DEFAULT_MIN_FREQUENCY = 20
+DEFAULT_MAX_FREQUENCY = 20000
+DEFAULT_NUM_BINS = 1000
 
 class AudioAnalyzer:
-    def __init__(self, min_freq=20, max_freq=20000, num_bins=1000):
-        """
-        Initialize audio frequency analyzer
-        
-        Parameters:
-            min_freq (float): Minimum frequency to analyze (Hz)
-            max_freq (float): Maximum frequency to analyze (Hz)
-            num_bins (int): Number of frequency bins for analysis
-        """
-        self.min_freq = min_freq
-        self.max_freq = max_freq
-        self.num_bins = num_bins
+    def __init__(self, min_freq=DEFAULT_MIN_FREQUENCY, max_freq=DEFAULT_MAX_FREQUENCY, num_bins=DEFAULT_NUM_BINS):
+        self._min_freq = min_freq
+        self._max_freq = max_freq
+        self._num_bins = num_bins
+        self._reset_state()
 
-    def load_audio(self, file_path):
-        """Load and normalize audio file"""
-        sample_rate, audio_data = wavfile.read(file_path)
-        
-        if len(audio_data.shape) > 1:
-            audio_data = audio_data.mean(axis=1)
-              
-        audio_data = audio_data.astype(np.float32) / 32768
-        return sample_rate, audio_data
+    def _reset_state(self):
+        self._sample_rate = None
+        self._audio_data = None
+        self._channels = None
+        self._freqs = None
+        self._spectrum_complex = None
+        self._spectrum_magnitude = None
+        self._spectrum_phase = None
+        self._filtered_freqs = None
+        self._filtered_amps = None
+        self._bin_centers = None
+        self._binned_amps = None
 
-    def compute_spectrum(self, audio_data, sample_rate):
-        """Compute FFT spectrum of audio signal"""
-        spectrum = fft(audio_data)
-        spectrum = np.abs(spectrum) / len(spectrum)
-        freqs = fftfreq(len(audio_data), d=1/sample_rate)
-        return freqs, spectrum
+    def _load_audio(self, audio_data, sample_rate):
+        self._sample_rate = sample_rate
+        self._audio_data = audio_data
 
-    def filter_frequencies(self, freqs, spectrum):
-        """Filter frequencies within specified range"""
-        valid_mask = (freqs >= self.min_freq) & (freqs <= self.max_freq)
-        filtered_freqs = freqs[valid_mask]
-        filtered_amps = spectrum[valid_mask]
-        return filtered_freqs, filtered_amps
+        if len(self._audio_data.shape) > 1:
+            self._audio_data = self._audio_data.mean(axis=1)
 
-    def create_frequency_bins(self):
-        """Create logarithmic frequency bins"""
-        return np.logspace(np.log10(self.min_freq), 
-                         np.log10(self.max_freq), 
-                         num=self.num_bins + 1)
+        self._audio_data = self._audio_data.astype(np.float32)
+        max_val = np.max(np.abs(self._audio_data))
+        if max_val > 0:
+            self._audio_data /= max_val
 
-    def bin_amplitudes(self, frequences, amplitudes, bins):
-        """Bin amplitudes into frequency ranges"""
-        indexes = np.digitize(frequences, bins) - 1
-        binned_amps = np.zeros(self.num_bins)
-        counts = np.zeros(self.num_bins)
-        
-        for idx, amp in zip(indexes, amplitudes):
-            if 0 <= idx < self.num_bins:
-                binned_amps[idx] += amp
+    def _compute_spectrum(self):
+        self._spectrum_complex = fft(self._audio_data)
+        n = len(self._audio_data)
+        self._spectrum_magnitude = np.abs(self._spectrum_complex) / n
+        self._spectrum_phase = np.angle(self._spectrum_complex)
+        self._freqs = fftfreq(n, d=1/self._sample_rate)
+
+    def _compute_reverse(self):
+        signal = ifft(self._spectrum_complex).real
+        max_val = np.max(np.abs(signal))
+        return signal / max_val if max_val > 0 else signal
+
+    def _filter_frequencies(self):
+        valid_mask = (self._freqs >= self._min_freq) & (self._freqs <= self._max_freq)
+        self._filtered_freqs = self._freqs[valid_mask]
+        self._filtered_amps = self._spectrum_magnitude[valid_mask]
+
+    # TODO сделать, чтобы было дискретным
+    def _create_frequency_bins(self):
+        return np.logspace(np.log10(self._min_freq), np.log10(self._max_freq), num=self._num_bins + 1)
+
+    def _bin_amplitudes(self):
+        bins = self._create_frequency_bins()
+        self._binned_amps = self._bin_channel_amplitudes(self._filtered_freqs, self._filtered_amps, bins)
+        self._bin_centers = (bins[:-1] + bins[1:]) / 2
+
+    def _bin_channel_amplitudes(self, freqs, amps, bins):
+        indexes = np.digitize(freqs, bins) - 1
+        binned = np.zeros(self._num_bins)
+        counts = np.zeros(self._num_bins)
+        for idx, amp in zip(indexes, amps):
+            if 0 <= idx < self._num_bins:
+                binned[idx] += amp
                 counts[idx] += 1
-        
         with np.errstate(divide='ignore', invalid='ignore'):
-            binned_amps = np.where(counts > 0, binned_amps / counts, 0)
-            
-        return binned_amps
+            return np.where(counts > 0, binned / counts, 0)
 
-    def process_audio_file(self, file_path):
-        """
-        Process audio file and return frequency analysis
+    def process_audio(self, audio_data, sample_rate=DEFAULT_SAMPLE_RATE):
+        self._reset_state()
+        self._load_audio(audio_data, sample_rate)
+        self._compute_spectrum()
+        self._filter_frequencies()
+        self._bin_amplitudes()
+        return self._filtered_freqs, self._filtered_amps
+
+    @property
+    def sample_rate(self):
+        return self._sample_rate
         
-        Returns:
-            tuple: (bin_centers, binned_amplitudes)
-        """
-        sample_rate, audio_data = self.load_audio(file_path)
+    @property
+    def frequency_bins(self):
+        return self._bin_centers
         
-        freqs, spectrum = self.compute_spectrum(audio_data, sample_rate)
-        freqs, amps = self.filter_frequencies(freqs, spectrum)
+    @property
+    def binned_amplitudes(self):
+        return self._binned_amps
         
-        bins = self.create_frequency_bins()
-        binned_amps = self.bin_amplitudes(freqs, amps, bins)
-        bin_centers = (bins[:-1] + bins[1:]) / 2
+    @property
+    def spectrum_magnitude(self):
+        return self._spectrum_magnitude
         
-        return bin_centers, binned_amps
+    @property
+    def spectrum_phase(self):
+        return self._spectrum_phase
+        
+    @property
+    def reconstructed_audio(self):
+        return self._compute_reverse()
