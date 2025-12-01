@@ -1,15 +1,16 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "audiorecorder.h"
+#include "audioplayer.h"
+#include "frequencyplot.h"
+#include "amplitudeplot.h"
+
 #include <QMainWindow>
 #include <QAudioSink>
 #include <QAudioSource>
 #include <QTimer>
 #include <thread>
-#include "audiorecorder.h"
-#include "audioplayer.h"
-#include "frequencyplot.h"
-#include "amplitudeplot.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -30,6 +31,10 @@ private slots:
     void on_buttonStop_clicked();
 
 private:
+    void startRecording();
+    void stopRecording();
+
+private:
     Ui::MainWindow *ui;
     AudioRecorder m_recorder;
     AudioPlayer m_player;
@@ -40,10 +45,6 @@ private:
     std::atomic<bool> m_isRunning;
     std::mutex m_plotMutex;
     QTimer m_plotTimer;
-
-private:
-    void startRecording();
-    void stopRecording();
 };
 
 #endif // MAINWINDOW_H

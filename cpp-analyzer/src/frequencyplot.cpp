@@ -1,29 +1,28 @@
 #include "frequencyplot.h"
 #include "audioconverter.h"
 #include <algorithm>
-#include "fft.h"
+#include "fourier.h"
 
 namespace {
 
-constexpr static int CHANNELS = 2;
-constexpr static double MIN_FREQUENCY_X = 20.0;
-constexpr static double MAX_FREQUENCY_X = 20'000.0;
-constexpr static int FREQUENCY_BUFFER_SIZE = 4096;
-constexpr static int VEC_FREQUENCY_SIZE = 1024;
+constexpr static int kChannels{ 2 };
+constexpr static double kMinFrequency{ 20.0 };
+constexpr static double kMaxFrequency{ 20'000.0 };
+constexpr static int kFrequencyBufferSize{ 4096 };
 
 }
 
 FrequencyPlot::FrequencyPlot() noexcept
-    : m_buffer(FREQUENCY_BUFFER_SIZE)
-    , m_axisX(VEC_FREQUENCY_SIZE, 0)
-    , m_axisY(VEC_FREQUENCY_SIZE, 0)
+    : m_buffer(kFrequencyBufferSize)
+    , m_axisX(kFrequencyBufferSize, 0)
+    , m_axisY(kFrequencyBufferSize, 0)
 {}
 
 void FrequencyPlot::initialize(QCustomPlot* parent)
 {
     m_plot = parent;
 
-    m_plot->xAxis->setRange(MIN_FREQUENCY_X, MAX_FREQUENCY_X);
+    m_plot->xAxis->setRange(kMinFrequency, kMaxFrequency);
     m_plot->yAxis->setRange(-80.0, 0.0);
     m_plot->addGraph();
 
@@ -33,7 +32,7 @@ void FrequencyPlot::initialize(QCustomPlot* parent)
 
 void FrequencyPlot::addData(const std::span<float>& source)
 {
-    if constexpr (CHANNELS == 2) {
+    if constexpr (kChannels == 2) {
         auto monoSource = AudioConverter::createMono(source);
         std::ranges::for_each(monoSource, [this](float elem){
             m_buffer.push(elem);
@@ -50,20 +49,20 @@ void FrequencyPlot::addData(const std::span<float>& source)
 void FrequencyPlot::updatePlot()
 {
     auto updateAxisY = [this]() -> void {
-        const int size = std::min(static_cast<int>(m_buffer.size()), FREQUENCY_BUFFER_SIZE);
+        const int size = std::min(static_cast<int>(m_buffer.size()), kFrequencyBufferSize);
         QVector<double> frequency_buffer(size);
         for (int i = 0; i < size; ++i){
             frequency_buffer[i] = m_buffer.front();
             m_buffer.pop();
         }
-        QVector<double> result = FFT::computeDFT(frequency_buffer, m_axisX);
+        // //QVector<double> result = fourier::dft(frequency_buffer, m_axisX, 48000);
 
-        std::ranges::transform(result, result.begin(), [](const double magnitude){
-            double dbValue = 20.0 * std::log10(std::max(magnitude, 1e-12));
-            return std::clamp(dbValue, -80.0, 0.0);
-        });
+        // std::ranges::transform(result, result.begin(), [](const double magnitude){
+        //     double dbValue = 20.0 * std::log10(std::max(magnitude, 1e-12));
+        //     return std::clamp(dbValue, -80.0, 0.0);
+        // });
 
-        m_axisY = std::move(result);
+        // m_axisY = std::move(result);
     };
 
     bool needsUpdate = false;
@@ -86,14 +85,14 @@ void FrequencyPlot::initializeAxisX(){
     constexpr double exponent = 0.75;
 
     std::ranges::generate(m_axisX, [i=0]() mutable {
-        double normalized = static_cast<double>(i) / (VEC_FREQUENCY_SIZE - 1);
+        double normalized = static_cast<double>(i) / (kFrequencyBufferSize - 1);
         double adjusted = std::pow(normalized, exponent);
-        double result = MIN_FREQUENCY_X * std::pow(MAX_FREQUENCY_X / MIN_FREQUENCY_X, adjusted);
+        double result = kMinFrequency * std::pow(kMaxFrequency / kMinFrequency, adjusted);
         ++i;
         return result;
     });
 }
 
 void FrequencyPlot::initializeAxisY(){
-    m_axisY.resize(VEC_FREQUENCY_SIZE, 0);
+    m_axisY.resize(kFrequencyBufferSize, 0);
 }

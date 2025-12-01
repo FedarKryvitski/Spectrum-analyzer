@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
 #include <QAudioSource>
 #include <QAudioFormat>
 #include <QMediaDevices>
@@ -7,13 +8,13 @@
 #include <QIODevice>
 #include <QMessageBox>
 #include <QTimer>
-#include <span>
-
-using namespace std::chrono_literals;
 
 namespace {
 
-constexpr uint32_t PLOT_UPDATE_MS = 1000 / 60;
+using namespace std::chrono_literals;
+
+constexpr auto kFPS{ 60 };
+constexpr auto kPlotUpdateInterval{ 1s / kFPS };
 
 } // namespace
 
@@ -66,7 +67,7 @@ void MainWindow::startRecording()
         m_player.stop();
     }));
 
-    m_plotTimer.start(PLOT_UPDATE_MS);
+    m_plotTimer.start(kPlotUpdateInterval);
 }
 
 void MainWindow::stopRecording()

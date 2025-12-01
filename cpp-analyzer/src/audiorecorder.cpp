@@ -1,5 +1,8 @@
 #include "audiorecorder.h"
 #include <QDebug>
+#include <vector>
+
+#include <alsa/asoundlib.h>
 
 namespace {
 

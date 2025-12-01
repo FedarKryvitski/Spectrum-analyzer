@@ -1,25 +1,28 @@
 #include "amplitudeplot.h"
 #include "audioconverter.h"
+
 #include <algorithm>
 
 namespace {
 
-constexpr static int FREQUENCY = 44100;
-constexpr static float PLOT_DURATION = 3.0;
-constexpr static int SAMPLE_STEP = 10;
-constexpr static int CHANNELS = 2;
-constexpr static int VEC_AMPLITUDE_SIZE = PLOT_DURATION * FREQUENCY / SAMPLE_STEP;
+using namespace std::chrono_literals;
+
+constexpr static int kSampleRate{ 44100 };
+constexpr static int kChannels{ 2 };
+constexpr static float kPlotDurationSec{ 3.f };
+constexpr static int kSampleStep{ 10 };
+constexpr static int KBufferSize = kPlotDurationSec * kSampleRate / kSampleStep;
 
 }
 
 AmplitudePlot::AmplitudePlot() noexcept
-    : m_buffer(VEC_AMPLITUDE_SIZE)
+    : m_buffer(KBufferSize)
 {}
 
 void AmplitudePlot::initialize(QCustomPlot* parent)
 {
     m_plot = parent;
-    m_plot->xAxis->setRange(0, PLOT_DURATION);
+    m_plot->xAxis->setRange(0, kPlotDurationSec);
     m_plot->yAxis->setRange(-1, 1);
     m_plot->addGraph();
 
@@ -29,7 +32,7 @@ void AmplitudePlot::initialize(QCustomPlot* parent)
 
 void AmplitudePlot::addData(const std::span<float>& source)
 {
-    if constexpr (CHANNELS == 2) {
+    if constexpr (kChannels == 2) {
         auto monoSource = AudioConverter::createMono(source);
         std::ranges::for_each(monoSource, [this](float elem){
             m_buffer.push(elem);
@@ -48,9 +51,9 @@ void AmplitudePlot::updatePlot()
     {
         QVector<double> vec;
         const int size = m_buffer.size();
-        const int copySize = size / SAMPLE_STEP;
+        const int copySize = size / kSampleStep;
         for (int i = 0; i < size; ++i){
-            if (i % SAMPLE_STEP == SAMPLE_STEP - 1){
+            if (i % kSampleStep == kSampleStep - 1){
                 vec.push_back(m_buffer.front());
             }
             m_buffer.pop();
@@ -80,9 +83,9 @@ void AmplitudePlot::updatePlot()
 
 void AmplitudePlot::initializeAxisX()
 {
-    QVector<double> result(VEC_AMPLITUDE_SIZE);
-    constexpr float h = PLOT_DURATION / VEC_AMPLITUDE_SIZE;
-
+    constexpr float h = kPlotDurationSec / KBufferSize;
+    
+    std::vector<double> result(KBufferSize);
     std::iota(result.begin(), result.end(), 0);
     std::ranges::transform(result, result.begin(), [](const auto elem){
         return elem * h;
@@ -92,5 +95,5 @@ void AmplitudePlot::initializeAxisX()
 }
 
 void AmplitudePlot::initializeAxisY(){
-    m_axisY.resize(VEC_AMPLITUDE_SIZE, 0);
+    m_axisY.resize(KBufferSize, 0);
 }

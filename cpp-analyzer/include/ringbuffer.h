@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 template <typename T>
-class RingBuffer final{
+class RingBuffer final {
 public:
     RingBuffer(int capacity) noexcept;
 
