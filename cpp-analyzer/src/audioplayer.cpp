@@ -1,13 +1,15 @@
 #include "audioplayer.h"
+
 #include <QDebug>
+#include <vector>
 
 namespace {
 
-constexpr static uint32_t CHANNELS = 2;
-constexpr static uint32_t RATE = 44100;
-constexpr static snd_pcm_format_t FORMAT = SND_PCM_FORMAT_FLOAT;
+constexpr size_t kChannels{ 2 };
+constexpr size_t kSampleRate{ 44100 };
+constexpr snd_pcm_format_t kFormat{ SND_PCM_FORMAT_FLOAT };
 
-}
+} // namespace
 
 AudioPlayer::~AudioPlayer()
 {
@@ -31,8 +33,8 @@ void AudioPlayer::start()
         return;
     }
 
-    err = snd_pcm_set_params(handle_, FORMAT, SND_PCM_ACCESS_RW_INTERLEAVED,
-                             CHANNELS, RATE, 1, 50000);
+    err = snd_pcm_set_params(handle_, kFormat, SND_PCM_ACCESS_RW_INTERLEAVED,
+                             kChannels, kSampleRate, 1, 50000);
     if (err < 0) {
         qDebug() << "Playback open error: " << snd_strerror(err);
         return;
@@ -51,9 +53,14 @@ void AudioPlayer::stop()
     isPlaying_ = false;
 }
 
-void AudioPlayer::playSound(std::span<const float> data)
+void AudioPlayer::playSound(std::span<const double> data)
 {
-    int err = snd_pcm_writei(handle_, data.data(), data.size() / CHANNELS);
+    std::vector<float> buffer(data.size());
+    std::ranges::transform(data, buffer.begin(), [](const auto& elem){
+        return static_cast<float>(elem);
+    });
+
+    int err = snd_pcm_writei(handle_, buffer.data(), buffer.size() / kChannels);
     if (err < 0) {
         if (err == -EPIPE) {
             qDebug() << "XRUN (переполнение буфера), восстанавливаем...";

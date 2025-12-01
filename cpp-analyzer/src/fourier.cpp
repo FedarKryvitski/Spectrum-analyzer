@@ -28,11 +28,11 @@ int upper_log2(const int x)
 
 const std::vector<complex> phase_vec(const int len)
 {
-    constexpr float radius{ 1.f };
+    constexpr double radius{ 1.f };
 
     std::vector<complex> res(len);
     std::generate(res.begin(), res.end(), [&, i=0]() mutable {
-        const float phase = -2.f * pi * i++ / len;
+        const double phase = -2.f * pi * i++ / len;
         return std::polar(radius, phase);
     });
 
@@ -135,9 +135,9 @@ std::vector<complex> ifftImpl(std::span<const complex> inputs)
 
 } // namespace
 
-std::vector<complex> dft(std::span<const float> input,
-                         std::span<const float> bins,
-                         float sampleRate)
+std::vector<complex> dft(std::span<const double> input,
+                         std::span<const double> bins,
+                         double sampleRate)
 {
     std::vector<complex> output(bins.size());
 
@@ -148,7 +148,7 @@ std::vector<complex> dft(std::span<const float> input,
 
         for (size_t n = 0; n < input.size(); ++n)
         {
-            const float angle = -2.f * pi * frequency * n / sampleRate;
+            const double angle = -2.f * pi * frequency * n / sampleRate;
             sum += input[n] * complex(std::cos(angle), std::sin(angle));
         }
         output[i] = sum;
@@ -157,21 +157,21 @@ std::vector<complex> dft(std::span<const float> input,
     return output;
 }
 
-std::vector<float> idft(std::span<const complex> amplitudes,
-                        std::span<const float> bins,
-                        float sampleRate,
+std::vector<double> idft(std::span<const complex> amplitudes,
+                        std::span<const double> bins,
+                        double sampleRate,
                         const size_t size)
 {
     if (amplitudes.size() != bins.size())
         throw std::runtime_error("Amplitudes and bins sizes aren't equal");
 
-    std::vector<float> output(size);
+    std::vector<double> output(size);
     for (size_t i = 0; i < size; ++i)
     {
         complex sum{};
         for (size_t j = 0; j < bins.size(); ++j)
         {
-            const float angle = 2.f * pi * i * j / sampleRate;
+            const double angle = 2.f * pi * i * j / sampleRate;
             sum += amplitudes[i] * complex(std::cos(angle), std::sin(angle));
         }
         output[i] = sum.real() / size;
@@ -179,22 +179,22 @@ std::vector<float> idft(std::span<const complex> amplitudes,
     return output;
 }
 
-std::vector<complex> fft(std::span<const float> input)
+std::vector<complex> fft(std::span<const double> input)
 {
     std::vector<complex> data(input.size());
     std::ranges::transform(input, data.begin(), [](const auto& num) {
-        return std::complex(num, 0.f);
+        return std::complex(num, 0.0);
     });
 
     return fftImpl(data);
 }
 
-std::vector<float> ifft(std::span<const complex> input)
+std::vector<double> ifft(std::span<const complex> input)
 {
     const int inputSize = input.size();
     const auto data = ifftImpl(input);
 
-    std::vector<float> result(data.size());
+    std::vector<double> result(data.size());
     std::ranges::transform(data, result.begin(), [inputSize](const auto& num) {
         return num.real() / inputSize;
     });
@@ -202,15 +202,15 @@ std::vector<float> ifft(std::span<const complex> input)
     return result;
 }
 
-std::vector<float> fftFreqs(float sampleRate, size_t size)
+std::vector<double> fftFreqs(double sampleRate, size_t size)
 {
-    std::vector<float> freqs(size);
+    std::vector<double> freqs(size);
     for (size_t i = 0; i < size; ++i)
     {
         if (i <= size / 2)
-            freqs[i] = static_cast<float>(i) * sampleRate / size;
+            freqs[i] = static_cast<double>(i) * sampleRate / size;
         else
-            freqs[i] = static_cast<float>(i - size) * sampleRate / size;
+            freqs[i] = static_cast<double>(i - size) * sampleRate / size;
     }
     return freqs;
 }

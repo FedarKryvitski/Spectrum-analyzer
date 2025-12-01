@@ -12,7 +12,7 @@ public:
 
     virtual void initialize(QCustomPlot* parent) = 0;
     virtual void update() = 0;
-    virtual void addData(std::span<const float> source) = 0;
+    virtual void addData(std::span<const double> source) = 0;
 
 protected:
     QCustomPlot* plot_;

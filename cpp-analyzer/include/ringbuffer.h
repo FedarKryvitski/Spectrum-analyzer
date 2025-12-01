@@ -7,7 +7,7 @@
 template <typename T>
 class RingBuffer final {
 public:
-    RingBuffer(int capacity) noexcept;
+    RingBuffer(size_t capacity) noexcept;
     ~RingBuffer() = default;
 
     void push(const T& item);
@@ -15,19 +15,19 @@ public:
     void clear();
 
     T front() const;
-    int size() const;
-    int capacity() const;
+    size_t size() const;
+    size_t capacity() const;
     bool isEmpty() const;
     bool isFull() const;
 
 private:
     std::vector<T> buffer_;
-    int capacity_{}, size_{};
-    int head_{}, tail_{};
+    size_t capacity_{}, size_{};
+    size_t head_{}, tail_{};
 };
 
 template<typename T>
-RingBuffer<T>::RingBuffer(int capacity) noexcept
+RingBuffer<T>::RingBuffer(size_t capacity) noexcept
     : capacity_(capacity)
 {
     buffer_.resize(capacity);
@@ -80,12 +80,12 @@ void RingBuffer<T>::pop() {
 }
 
 template<typename T>
-int RingBuffer<T>::size() const {
+size_t RingBuffer<T>::size() const {
     return size_;
 }
 
 template<typename T>
-int RingBuffer<T>::capacity() const {
+size_t RingBuffer<T>::capacity() const {
     return capacity_;
 }
 

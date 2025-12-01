@@ -16,7 +16,7 @@ public:
 
     void setDevice(const std::string& device);
 
-    void playSound(std::span<const float> data);
+    void playSound(std::span<const double> data);
 
 private:
     snd_pcm_t *handle_{ nullptr };

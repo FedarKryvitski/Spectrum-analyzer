@@ -10,7 +10,7 @@ public:
     AmplitudePlot() noexcept;
 
     void initialize(QCustomPlot* parent) override;
-    void addData(std::span<const float> source) override;
+    void addData(std::span<const double> source) override;
     void update() override;
 
 private:
@@ -21,7 +21,7 @@ private:
 
 private:
     QVector<double> axisX_, axisY_;
-    RingBuffer<float> buffer_;
+    RingBuffer<double> buffer_;
 };
 
 #endif // AMPLITUDEPLOT_H

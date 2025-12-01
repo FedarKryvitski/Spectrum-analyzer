@@ -1,16 +1,18 @@
 #ifndef AUDIOANALYZER_H
 #define AUDIOANALYZER_H
 
+#include <stdlib.h>
+
 namespace AudioAnalyzer {
 
 class AudioAnalyzer
 {
 public:
-    explicit AudioAnalyzer(float sampleRate = 48000.f) noexcept;
+    explicit AudioAnalyzer(size_t sampleRate = 44100) noexcept;
     virtual ~AudioAnalyzer() = default;
 
 private:
-    float sampleRate_;
+    size_t sampleRate_;
 };
 
 } // namespace AudioAnalyzer

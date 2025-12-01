@@ -10,7 +10,7 @@ public:
     FrequencyPlot() noexcept;
 
     void initialize(QCustomPlot* parent) override;
-    void addData(std::span<const float> source) override;
+    void addData(std::span<const double> source) override;
     void update() override;
 
 private:

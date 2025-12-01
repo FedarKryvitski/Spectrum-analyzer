@@ -49,14 +49,20 @@ void AudioRecorder::start()
     isRecording_ = true;
 }
 
-std::vector<float> AudioRecorder::data()
+std::vector<double> AudioRecorder::data()
 {
-    std::vector<float> data(bufFrames_ * kChannels);
-    int err = snd_pcm_readi(handle_, data.data(), bufFrames_);
+    std::vector<float> buffer(bufFrames_ * kChannels);
+    int err = snd_pcm_readi(handle_, buffer.data(), bufFrames_);
     if (err < 0) {
         qDebug() << "read from audio interface failed" << snd_strerror(err);
         return {};
     }
+
+    std::vector<double> data(buffer.size());
+    std::ranges::transform(buffer, data.begin(), [](const auto& elem){
+        return static_cast<double>(elem);
+    });
+
     return data;
 }
 

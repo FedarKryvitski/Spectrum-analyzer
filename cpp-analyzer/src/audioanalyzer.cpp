@@ -2,6 +2,6 @@
 
 namespace AudioAnalyzer {
 
-//AudioAnalyzer::AudioAnalyzer(float sampleRate) noexcept;
+//AudioAnalyzer::AudioAnalyzer(size_t sampleRate) noexcept;
 
 } // namespace AudioAnalyzer

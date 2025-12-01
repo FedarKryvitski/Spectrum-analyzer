@@ -16,7 +16,7 @@ public:
 
     void setDevice(const std::string& device);
 
-    std::vector<float> data();
+    std::vector<double> data();
 
     void setBufferSize(size_t size);
     size_t getBufferSize() const;
