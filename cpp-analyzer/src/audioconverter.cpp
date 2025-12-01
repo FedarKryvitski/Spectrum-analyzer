@@ -1,6 +1,6 @@
 #include "audioconverter.h"
 
-QByteArray AudioConverter::fromFloatArray(const std::span<float>& source)
+QByteArray AudioConverter::fromFloatArray(std::span<const float> source)
 {
     const int size = source.size();
     QByteArray result(size * sizeof(int16_t), 0);
@@ -14,7 +14,7 @@ QByteArray AudioConverter::fromFloatArray(const std::span<float>& source)
     return result;
 }
 
-std::vector<float> AudioConverter::fromByteArray(const std::span<int8_t>& source)
+std::vector<float> AudioConverter::fromByteArray(std::span<const int8_t> source)
 {
     const int size = source.size();
     std::vector<float> result(size / sizeof(int16_t), 0);
@@ -44,7 +44,7 @@ std::vector<float> AudioConverter::fromByteArray(const QByteArray& source)
     return result;
 }
 
-std::vector<float> AudioConverter::createMono(const std::span<float>& source)
+std::vector<float> AudioConverter::createMono(std::span<const float> source)
 {
     const int size = source.size();
     std::vector<float> result(size / 2);
@@ -56,7 +56,7 @@ std::vector<float> AudioConverter::createMono(const std::span<float>& source)
     return result;
 }
 
-std::vector<float> AudioConverter::createStereo(const std::span<float>& source)
+std::vector<float> AudioConverter::createStereo(std::span<const float> source)
 {
     const int size = source.size();
     std::vector<float> result(size * 2);

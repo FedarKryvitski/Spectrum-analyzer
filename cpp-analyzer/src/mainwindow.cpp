@@ -1,38 +1,32 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QAudioSource>
-#include <QAudioFormat>
-#include <QMediaDevices>
-#include <QAudioDevice>
-#include <QIODevice>
-#include <QMessageBox>
 #include <QTimer>
 
 namespace {
 
 using namespace std::chrono_literals;
 
-constexpr auto kFPS{ 60 };
-constexpr auto kPlotUpdateInterval{ 1s / kFPS };
+constexpr auto kFps{ 60.f };
+constexpr auto kUpdateIntervalMsec{ 1000 / kFps };
 
 } // namespace
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , m_plotTimer(this)
-    , m_isRunning(false)
+    , plotTimer_(this)
+    , isRunning_(false)
 {
     ui->setupUi(this);
 
-    m_frequencyPlot.initialize(ui->frequencyPlot);
-    m_amplitudePlot.initialize(ui->amplitudePlot);
+    frequencyPlot_.initialize(ui->frequencyPlot);
+    amplitudePlot_.initialize(ui->amplitudePlot);
 
-    connect(&m_plotTimer, &QTimer::timeout, this, [this](){
-        std::lock_guard<std::mutex> lock(m_plotMutex);
-        m_amplitudePlot.updatePlot();
-        m_frequencyPlot.updatePlot();
+    connect(&plotTimer_, &QTimer::timeout, this, [this](){
+        std::lock_guard lock(plotMutex_);
+        amplitudePlot_.update();
+        frequencyPlot_.update();
     });
 }
 
@@ -44,40 +38,41 @@ MainWindow::~MainWindow()
 
 void MainWindow::startRecording()
 {
-    if (m_isRunning)
+    if (isRunning_)
         return;
 
-    m_isRunning = true;
-    m_soundThread.reset(new std::jthread([this](){
-        m_recorder.start();
-        m_player.start();
+    isRunning_ = true;
 
-        while (m_isRunning)
+    soundThread_.reset(new std::jthread([this](){
+        recorder_.start();
+        player_.start();
+
+        while (isRunning_)
         {
-            std::vector<float> data = m_recorder.getData();
+            auto data = recorder_.data();
             {
-                std::lock_guard<std::mutex> lock(m_plotMutex);
-                m_frequencyPlot.addData(data);
-                m_amplitudePlot.addData(data);
+                std::lock_guard lock(plotMutex_);
+                frequencyPlot_.addData(data);
+                amplitudePlot_.addData(data);
             }
-            m_player.playSound(data);
+            player_.playSound(data);
         }
 
-        m_recorder.stop();
-        m_player.stop();
+        recorder_.stop();
+        player_.stop();
     }));
 
-    m_plotTimer.start(kPlotUpdateInterval);
+    plotTimer_.start(kUpdateIntervalMsec);
 }
 
 void MainWindow::stopRecording()
 {
-    if (!m_isRunning)
+    if (!isRunning_)
         return;
 
-    m_isRunning = false;
-    m_soundThread.reset();
-    m_plotTimer.stop();
+    isRunning_ = false;
+    soundThread_.reset();
+    plotTimer_.stop();
 }
 
 void MainWindow::on_buttonStart_clicked()

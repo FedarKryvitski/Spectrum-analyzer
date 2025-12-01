@@ -4,22 +4,24 @@
 #include "plot.h"
 #include "ringbuffer.h"
 
-class FrequencyPlot final : Plot
+class FrequencyPlot final : public IPlot
 {
 public:
     FrequencyPlot() noexcept;
 
     void initialize(QCustomPlot* parent) override;
-    void addData(const std::span<float>& source) override;
-    void updatePlot() override;
+    void addData(std::span<const float> source) override;
+    void update() override;
 
 private:
     void initializeAxisX();
     void initializeAxisY();
 
+    void updateAxisY();
+
 private:
-    QVector<double> m_axisX, m_axisY;
-    RingBuffer<double> m_buffer;
+    QVector<double> axisX_, axisY_;
+    RingBuffer<double> buffer_;
 };
 
 #endif // FREQUENCYPLOT_H

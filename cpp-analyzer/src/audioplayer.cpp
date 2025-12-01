@@ -16,48 +16,48 @@ AudioPlayer::~AudioPlayer()
 
 void AudioPlayer::setDevice(const std::string& device)
 {
-    m_device = device;
+    device_ = device;
 }
 
 void AudioPlayer::start()
 {
-    if (m_isPlaying)
+    if (isPlaying_)
         return;
 
-    int err = snd_pcm_open (&m_handle, m_device.c_str(),
+    int err = snd_pcm_open (&handle_, device_.c_str(),
                            SND_PCM_STREAM_PLAYBACK, 0);
     if (err < 0) {
-        qDebug() << "cannot open audio device " << m_device << snd_strerror(err);
+        qDebug() << "cannot open audio device " << device_ << snd_strerror(err);
         return;
     }
 
-    err = snd_pcm_set_params(m_handle, FORMAT, SND_PCM_ACCESS_RW_INTERLEAVED,
+    err = snd_pcm_set_params(handle_, FORMAT, SND_PCM_ACCESS_RW_INTERLEAVED,
                              CHANNELS, RATE, 1, 50000);
     if (err < 0) {
         qDebug() << "Playback open error: " << snd_strerror(err);
         return;
     }
 
-    snd_pcm_prepare(m_handle);
-    m_isPlaying = true;
+    snd_pcm_prepare(handle_);
+    isPlaying_ = true;
 }
 
 void AudioPlayer::stop()
 {
-    if (!m_isPlaying)
+    if (!isPlaying_)
         return;
 
-    snd_pcm_close(m_handle);
-    m_isPlaying = false;
+    snd_pcm_close(handle_);
+    isPlaying_ = false;
 }
 
-void AudioPlayer::playSound(const std::span<float> &data)
+void AudioPlayer::playSound(std::span<const float> data)
 {
-    int err = snd_pcm_writei(m_handle, data.data(), data.size() / CHANNELS);
+    int err = snd_pcm_writei(handle_, data.data(), data.size() / CHANNELS);
     if (err < 0) {
         if (err == -EPIPE) {
             qDebug() << "XRUN (переполнение буфера), восстанавливаем...";
-            snd_pcm_prepare(m_handle);
+            snd_pcm_prepare(handle_);
         } else {
             qDebug() << "write to audio interface failed" << snd_strerror(err);
         }

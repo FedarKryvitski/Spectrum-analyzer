@@ -2,21 +2,20 @@
 #define PLOT_H
 
 #include <qcustomplot.h>
-#include <QByteArray>
 #include <span>
 
-class Plot
+class IPlot
 {
 public:
-    Plot() noexcept = default;
-    virtual ~Plot() = default;
+    IPlot() noexcept = default;
+    virtual ~IPlot() = default;
 
     virtual void initialize(QCustomPlot* parent) = 0;
-    virtual void updatePlot() = 0;
-    virtual void addData(const std::span<float>& source) = 0;
+    virtual void update() = 0;
+    virtual void addData(std::span<const float> source) = 0;
 
 protected:
-    QCustomPlot* m_plot;
+    QCustomPlot* plot_;
 };
 
 #endif // PLOT_H

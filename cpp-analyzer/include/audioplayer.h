@@ -1,9 +1,9 @@
 #ifndef AUDIOPLAYER_H
 #define AUDIOPLAYER_H
 
-#include <QByteArray>
 #include <alsa/asoundlib.h>
 #include <span>
+#include <string>
 
 class AudioPlayer
 {
@@ -13,13 +13,15 @@ public:
 
     void start();
     void stop();
-    void playSound(const std::span<float>& data);
+
     void setDevice(const std::string& device);
 
+    void playSound(std::span<const float> data);
+
 private:
-    snd_pcm_t *m_handle{nullptr};
-    std::string m_device{"default"};
-    bool m_isPlaying{false};
+    snd_pcm_t *handle_{ nullptr };
+    std::string device_{ "default" };
+    bool isPlaying_{ false };
 };
 
 #endif // AUDIOPLAYER_H

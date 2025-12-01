@@ -2,15 +2,13 @@
 #include <QDebug>
 #include <vector>
 
-#include <alsa/asoundlib.h>
-
 namespace {
 
-constexpr static uint32_t CHANNELS = 2;
-constexpr static uint32_t RATE = 44100;
-constexpr static snd_pcm_format_t format = SND_PCM_FORMAT_FLOAT;
+constexpr uint32_t kChannels{ 2 };
+constexpr uint32_t kSampleRate{ 44100 };
+constexpr snd_pcm_format_t kFormat{ SND_PCM_FORMAT_FLOAT };
 
-}
+} // namespace
 
 AudioRecorder::~AudioRecorder()
 {
@@ -19,32 +17,42 @@ AudioRecorder::~AudioRecorder()
 
 void AudioRecorder::setDevice(const std::string& device)
 {
-    m_device = device;
+    device_ = device;
+}
+
+void AudioRecorder::setBufferSize(size_t size)
+{
+    bufFrames_ = size;
+}
+
+size_t AudioRecorder::getBufferSize() const
+{
+    return bufFrames_;
 }
 
 void AudioRecorder::start()
 {
-    if (m_isRecording)
+    if (isRecording_)
         return;
 
     int err{};
-    if ((err = snd_pcm_open (&m_handle, m_device.c_str(), SND_PCM_STREAM_CAPTURE, 0)) < 0) {
-        qDebug() << "Cannot open audio device " << m_device << snd_strerror(err);
+    if ((err = snd_pcm_open (&handle_, device_.c_str(), SND_PCM_STREAM_CAPTURE, 0)) < 0) {
+        qDebug() << "Cannot open audio device " << device_ << snd_strerror(err);
         return;
     }
 
-    if ((err = snd_pcm_set_params(m_handle, format,  SND_PCM_ACCESS_RW_INTERLEAVED, CHANNELS, RATE, 1, 50000)) < 0) {   /* 50 ms */
+    if ((err = snd_pcm_set_params(handle_, kFormat,  SND_PCM_ACCESS_RW_INTERLEAVED, kChannels, kSampleRate, 1, 50000)) < 0) {   /* 50 ms */
         qDebug() << "Capture open error: " << snd_strerror(err);
         return;
     }
 
-    m_isRecording = true;
+    isRecording_ = true;
 }
 
-std::vector<float> AudioRecorder::getData()
+std::vector<float> AudioRecorder::data()
 {
-    std::vector<float> data(m_bufFrames * CHANNELS);
-    int err = snd_pcm_readi(m_handle, data.data(), m_bufFrames);
+    std::vector<float> data(bufFrames_ * kChannels);
+    int err = snd_pcm_readi(handle_, data.data(), bufFrames_);
     if (err < 0) {
         qDebug() << "read from audio interface failed" << snd_strerror(err);
         return {};
@@ -54,9 +62,9 @@ std::vector<float> AudioRecorder::getData()
 
 void AudioRecorder::stop()
 {
-    if (!m_isRecording)
+    if (!isRecording_)
         return;
 
-    snd_pcm_close(m_handle);
-    m_isRecording = false;
+    snd_pcm_close(handle_);
+    isRecording_ = false;
 }

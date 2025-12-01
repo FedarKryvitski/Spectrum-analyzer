@@ -70,19 +70,6 @@
      </rect>
     </property>
    </widget>
-   <widget class="QProgressBar" name="barVolume">
-    <property name="geometry">
-     <rect>
-      <x>610</x>
-      <y>282</y>
-      <width>161</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="value">
-     <number>0</number>
-    </property>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

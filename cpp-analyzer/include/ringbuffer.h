@@ -8,6 +8,7 @@ template <typename T>
 class RingBuffer final {
 public:
     RingBuffer(int capacity) noexcept;
+    ~RingBuffer() = default;
 
     void push(const T& item);
     void pop();
@@ -20,44 +21,44 @@ public:
     bool isFull() const;
 
 private:
-    std::vector<T> m_buffer;
-    int m_capacity{}, m_size{};
-    int m_head{}, m_tail{};
+    std::vector<T> buffer_;
+    int capacity_{}, size_{};
+    int head_{}, tail_{};
 };
 
 template<typename T>
 RingBuffer<T>::RingBuffer(int capacity) noexcept
-    : m_capacity(capacity)
+    : capacity_(capacity)
 {
-    m_buffer.resize(capacity);
+    buffer_.resize(capacity);
 }
 
 template<typename T>
 void RingBuffer<T>::clear() {
-    m_size = 0;
-    m_head = 0;
-    m_tail = 0;
+    size_ = 0;
+    head_ = 0;
+    tail_ = 0;
 }
 
 template<typename T>
 bool RingBuffer<T>::isEmpty() const {
-    return m_size == 0;
+    return size_ == 0;
 }
 
 template<typename T>
 bool RingBuffer<T>::isFull() const {
-    return m_size == m_capacity;
+    return size_ == capacity_;
 }
 
 template<typename T>
 void RingBuffer<T>::push(const T& item) {
     if (isFull()) {
-        m_tail = (m_tail + 1) % m_capacity;
+        tail_ = (tail_ + 1) % capacity_;
     } else {
-        m_size++;
+        size_++;
     }
-    m_buffer[m_head] = item;
-    m_head = (m_head + 1) % m_capacity;
+    buffer_[head_] = item;
+    head_ = (head_ + 1) % capacity_;
 }
 
 template<typename T>
@@ -65,7 +66,7 @@ T RingBuffer<T>::front() const {
     if (isEmpty()) {
         throw std::runtime_error("Buffer is empty");
     }
-    T item = m_buffer[m_tail];
+    T item = buffer_[tail_];
     return item;
 }
 
@@ -74,18 +75,18 @@ void RingBuffer<T>::pop() {
     if (isEmpty()) {
         throw std::runtime_error("Buffer is empty");
     }
-    m_tail = (m_tail + 1) % m_capacity;
-    m_size--;
+    tail_ = (tail_ + 1) % capacity_;
+    size_--;
 }
 
 template<typename T>
 int RingBuffer<T>::size() const {
-    return m_size;
+    return size_;
 }
 
 template<typename T>
 int RingBuffer<T>::capacity() const {
-    return m_capacity;
+    return capacity_;
 }
 
 #endif // RINGBUFFER_H

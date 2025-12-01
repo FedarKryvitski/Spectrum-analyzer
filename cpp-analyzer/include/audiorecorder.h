@@ -2,8 +2,8 @@
 #define AUDIORECORDER_H
 
 #include <alsa/asoundlib.h>
-#include <QAudioDevice>
-#include <QByteArray>
+#include <vector>
+#include <string>
 
 class AudioRecorder
 {
@@ -14,17 +14,18 @@ public:
     void start();
     void stop();
 
-    std::vector<float> getData();
     void setDevice(const std::string& device);
 
-    void setBufferSize(uint32_t size) { m_bufFrames = size; }
-    uint32_t getBufferSize() const { return m_bufFrames; }
+    std::vector<float> data();
+
+    void setBufferSize(size_t size);
+    size_t getBufferSize() const;
 
 private:
-    snd_pcm_t *m_handle{nullptr};
-    std::string m_device{"default"};
-    uint32_t m_bufFrames{256};
-    bool m_isRecording{false};
+    snd_pcm_t *handle_{ nullptr };
+    std::string device_{ "default" };
+    size_t bufFrames_{ 256 };
+    bool isRecording_{ false };
 };
 
 #endif // AUDIORECORDER_H

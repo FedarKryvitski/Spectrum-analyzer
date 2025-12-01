@@ -7,8 +7,6 @@
 #include "amplitudeplot.h"
 
 #include <QMainWindow>
-#include <QAudioSink>
-#include <QAudioSource>
 #include <QTimer>
 #include <thread>
 
@@ -36,15 +34,15 @@ private:
 
 private:
     Ui::MainWindow *ui;
-    AudioRecorder m_recorder;
-    AudioPlayer m_player;
-    FrequencyPlot m_frequencyPlot;
-    AmplitudePlot m_amplitudePlot;
+    AudioRecorder recorder_;
+    AudioPlayer player_;
+    FrequencyPlot frequencyPlot_;
+    AmplitudePlot amplitudePlot_;
 
-    std::unique_ptr<std::jthread> m_soundThread;
-    std::atomic<bool> m_isRunning;
-    std::mutex m_plotMutex;
-    QTimer m_plotTimer;
+    std::unique_ptr<std::jthread> soundThread_;
+    std::atomic<bool> isRunning_;
+    std::mutex plotMutex_;
+    QTimer plotTimer_;
 };
 
 #endif // MAINWINDOW_H

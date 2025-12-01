@@ -16,68 +16,43 @@ constexpr static int KBufferSize = kPlotDurationSec * kSampleRate / kSampleStep;
 }
 
 AmplitudePlot::AmplitudePlot() noexcept
-    : m_buffer(KBufferSize)
+    : buffer_(KBufferSize)
 {}
 
 void AmplitudePlot::initialize(QCustomPlot* parent)
 {
-    m_plot = parent;
-    m_plot->xAxis->setRange(0, kPlotDurationSec);
-    m_plot->yAxis->setRange(-1, 1);
-    m_plot->addGraph();
+    plot_ = parent;
+    plot_->xAxis->setRange(0, kPlotDurationSec);
+    plot_->yAxis->setRange(-1, 1);
+    plot_->addGraph();
 
     initializeAxisX();
     initializeAxisY();
 }
 
-void AmplitudePlot::addData(const std::span<float>& source)
+void AmplitudePlot::addData(std::span<const float> source)
 {
     if constexpr (kChannels == 2) {
         auto monoSource = AudioConverter::createMono(source);
         std::ranges::for_each(monoSource, [this](float elem){
-            m_buffer.push(elem);
+            buffer_.push(elem);
         });
     }
     else {
         std::ranges::for_each(source, [this](float elem){
-            m_buffer.push(elem);
+            buffer_.push(elem);
         });
     }
 }
 
-void AmplitudePlot::updatePlot()
+void AmplitudePlot::update()
 {
-    auto updateAxisY = [this]() -> void
+    if (buffer_.size() > 0)
     {
-        QVector<double> vec;
-        const int size = m_buffer.size();
-        const int copySize = size / kSampleStep;
-        for (int i = 0; i < size; ++i){
-            if (i % kSampleStep == kSampleStep - 1){
-                vec.push_back(m_buffer.front());
-            }
-            m_buffer.pop();
-        }
-        std::copy(m_axisY.begin() + copySize,
-                  m_axisY.end(),
-                  m_axisY.begin());
+        updateAxisY();
 
-        std::copy(vec.begin(), vec.end(),
-                  m_axisY.end() - copySize);
-    };
-
-    bool needsUpdate = false;
-    {
-        needsUpdate = m_buffer.size() > 0;
-        if (needsUpdate){
-            updateAxisY();
-            m_buffer.clear();
-        }
-    }
-
-    if (needsUpdate) {
-        m_plot->graph(0)->setData(m_axisX, m_axisY);
-        m_plot->replot();
+        plot_->graph(0)->setData(axisX_, axisY_);
+        plot_->replot();
     }
 }
 
@@ -85,15 +60,39 @@ void AmplitudePlot::initializeAxisX()
 {
     constexpr float h = kPlotDurationSec / KBufferSize;
     
-    std::vector<double> result(KBufferSize);
-    std::iota(result.begin(), result.end(), 0);
-    std::ranges::transform(result, result.begin(), [](const auto elem){
-        return elem * h;
+    QVector<double> result(KBufferSize);
+    std::ranges::generate(result.begin(), result.end(), [i=0]() mutable {
+        return i++ * h;
     });
 
-    m_axisX = std::move(result);
+    axisX_ = std::move(result);
 }
 
-void AmplitudePlot::initializeAxisY(){
-    m_axisY.resize(KBufferSize, 0);
+void AmplitudePlot::initializeAxisY()
+{
+    axisY_.resize(KBufferSize, 0);
+}
+
+void AmplitudePlot::updateAxisY()
+{
+    if (buffer_.isEmpty())
+        return;
+
+    QVector<double> vec;
+    const int size = buffer_.size();
+    const int copySize = size / kSampleStep;
+    for (int i = 0; i < size; ++i){
+        if (i % kSampleStep == kSampleStep - 1){
+            vec.push_back(buffer_.front());
+        }
+        buffer_.pop();
+    }
+    std::copy(axisY_.begin() + copySize,
+              axisY_.end(),
+              axisY_.begin());
+
+    std::copy(vec.begin(), vec.end(),
+              axisY_.end() - copySize);
+
+    buffer_.clear();
 }

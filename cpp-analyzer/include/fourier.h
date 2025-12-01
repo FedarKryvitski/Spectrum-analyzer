@@ -9,7 +9,7 @@ namespace fourier {
 
 using complex = std::complex<float>;
 
-constexpr float kDefaultSampleRate = 48000;
+constexpr size_t kSampleRate{ 48000 };
 
 std::vector<complex> dft(std::span<const float> input,
                          std::span<const float> bins,
