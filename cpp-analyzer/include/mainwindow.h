@@ -8,7 +8,6 @@
 
 #include <QMainWindow>
 #include <QTimer>
-#include <thread>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -27,8 +26,13 @@ public:
 private slots:
     void on_buttonStart_clicked();
     void on_buttonStop_clicked();
+    void on_comboBox_currentIndexChanged(int index);
+    
+    void onReadyRead();
 
 private:
+    void init();
+
     void startRecording();
     void stopRecording();
 
@@ -39,10 +43,8 @@ private:
     FrequencyPlot frequencyPlot_;
     AmplitudePlot amplitudePlot_;
 
-    std::unique_ptr<std::jthread> soundThread_;
-    std::atomic<bool> isRunning_;
-    std::mutex plotMutex_;
     QTimer plotTimer_;
+    bool isRunning_{ false };
 };
 
 #endif // MAINWINDOW_H

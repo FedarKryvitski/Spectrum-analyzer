@@ -17,7 +17,7 @@ AmplitudePlot::AmplitudePlot() noexcept
     : buffer_(kBufferSize)
 {}
 
-void AmplitudePlot::initialize(QCustomPlot* parent)
+void AmplitudePlot::init(QCustomPlot* parent)
 {
     plot_ = parent;
     plot_->xAxis->setRange(0, kPlotDurationSec);
@@ -41,6 +41,7 @@ void AmplitudePlot::update()
         return;
 
     updateAxisY();
+    buffer_.clear();
 
     plot_->graph(0)->setData(axisX_, axisY_);
     plot_->replot();
@@ -87,6 +88,4 @@ void AmplitudePlot::updateAxisY()
 
     std::copy(vec.begin(), vec.end(),
               axisY_.end() - copySize);
-
-    buffer_.clear();
 }

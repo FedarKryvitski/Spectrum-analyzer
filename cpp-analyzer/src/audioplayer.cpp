@@ -5,7 +5,7 @@
 
 namespace {
 
-constexpr size_t kChannels{ 2 };
+constexpr size_t kChannels{ 1 };
 constexpr size_t kSampleRate{ 44100 };
 constexpr snd_pcm_format_t kFormat{ SND_PCM_FORMAT_FLOAT };
 

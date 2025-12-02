@@ -1,33 +1,31 @@
 #include "audiorecorder.h"
+
+#include <QAudioFormat>
+#include <QMediaDevices>
+#include <QAudioDevice>
+#include <QAudioSource>
 #include <QDebug>
-#include <vector>
+#include <QByteArray>
 
 namespace {
 
-constexpr uint32_t kChannels{ 2 };
-constexpr uint32_t kSampleRate{ 44100 };
-constexpr snd_pcm_format_t kFormat{ SND_PCM_FORMAT_FLOAT };
+constexpr size_t kChannels{ 1 };
+constexpr size_t kSampleRate{ 44100 };
 
 } // namespace
+
+AudioRecorder::AudioRecorder(QObject *parent) noexcept
+    : QObject(parent)
+{}
 
 AudioRecorder::~AudioRecorder()
 {
     stop();
 }
 
-void AudioRecorder::setDevice(const std::string& device)
+void AudioRecorder::setDevice(const QString &device)
 {
-    device_ = device;
-}
-
-void AudioRecorder::setBufferSize(size_t size)
-{
-    bufFrames_ = size;
-}
-
-size_t AudioRecorder::getBufferSize() const
-{
-    return bufFrames_;
+    deviceName_ = device;
 }
 
 void AudioRecorder::start()
@@ -35,33 +33,69 @@ void AudioRecorder::start()
     if (isRecording_)
         return;
 
-    int err{};
-    if ((err = snd_pcm_open (&handle_, device_.c_str(), SND_PCM_STREAM_CAPTURE, 0)) < 0) {
-        qDebug() << "Cannot open audio device " << device_ << snd_strerror(err);
+    if (deviceName_.isEmpty())
+    {
+        qWarning() << "[AudioRecorder::start()] Empty device name";
         return;
     }
 
-    if ((err = snd_pcm_set_params(handle_, kFormat,  SND_PCM_ACCESS_RW_INTERLEAVED, kChannels, kSampleRate, 1, 50000)) < 0) {   /* 50 ms */
-        qDebug() << "Capture open error: " << snd_strerror(err);
+    QAudioFormat format;
+    format.setSampleRate(kSampleRate);
+    format.setChannelCount(kChannels);
+    format.setSampleFormat(QAudioFormat::Int16);
+
+    auto audioDeviceList = QMediaDevices::audioInputs();
+    auto deviceIt = std::ranges::find_if(audioDeviceList, [&](const auto& device){
+        return device.description() == deviceName_;
+    });
+
+    if (deviceIt == audioDeviceList.end())
+    {
+        qWarning() << "[AudioRecorder::start()] Device not found";
         return;
     }
+
+    auto audioDevice = *deviceIt;
+    if (!audioDevice.isFormatSupported(format)) {
+        qWarning() << "[AudioRecorder::start()] Format not supported";
+        return;
+    }
+
+    reset();
+
+    audioSource_ = std::make_unique<QAudioSource>(audioDevice, format, this);
+
+    IODevice_ = audioSource_->start();
+    if (!IODevice_) {
+        qWarning() << "[AudioRecorder::start()] Failed to start";
+        audioSource_.reset();
+        return;
+    }
+
+    connect(IODevice_, &QIODevice::readyRead, this, [this](){
+        emit readyRead();
+    });
 
     isRecording_ = true;
 }
 
 std::vector<double> AudioRecorder::data()
 {
-    std::vector<float> buffer(bufFrames_ * kChannels);
-    int err = snd_pcm_readi(handle_, buffer.data(), bufFrames_);
-    if (err < 0) {
-        qDebug() << "read from audio interface failed" << snd_strerror(err);
+    if (!isRecording_ || !IODevice_)
         return {};
-    }
 
-    std::vector<double> data(buffer.size());
-    std::ranges::transform(buffer, data.begin(), [](const auto& elem){
-        return static_cast<double>(elem);
-    });
+    auto bytes = IODevice_->bytesAvailable();
+    QByteArray byteArray = IODevice_->read(bytes);
+
+    auto size = byteArray.size() / sizeof(int16_t);
+    const int16_t *ptr = reinterpret_cast<const int16_t*>(byteArray.constData());
+
+    std::vector<double> data;
+    for (int i = 0; i < size; ++i)
+    {
+        auto value = static_cast<double>(ptr[i]) / 33'000;
+        data.push_back(value);
+    }
 
     return data;
 }
@@ -71,6 +105,16 @@ void AudioRecorder::stop()
     if (!isRecording_)
         return;
 
-    snd_pcm_close(handle_);
+    reset();
     isRecording_ = false;
+}
+
+void AudioRecorder::reset()
+{
+    if (audioSource_) {
+        audioSource_->stop();
+    }
+
+    IODevice_ = nullptr;
+    audioSource_.reset();
 }

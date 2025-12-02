@@ -67,7 +67,7 @@ void forward(std::vector<complex>& prev,
     }
 }
 
-void bit_reversal_permutation(std::vector<complex>& vec, const int n_bits)
+void bit_reversal_permutation(std::vector<complex>& vec, const size_t n_bits)
 {
     if (vec.size() <= 2)
         return;
@@ -141,14 +141,14 @@ std::vector<complex> dft(std::span<const double> input,
 {
     std::vector<complex> output(bins.size());
 
-    for (int i = 0; i < bins.size(); ++i)
+    for (size_t i = 0; i < bins.size(); ++i)
     {
         const auto frequency = bins[i];
         complex sum(0, 0);
 
         for (size_t n = 0; n < input.size(); ++n)
         {
-            const double angle = -2.f * pi * frequency * n / sampleRate;
+            const double angle = -2.0 * pi * frequency * n / sampleRate;
             sum += input[n] * complex(std::cos(angle), std::sin(angle));
         }
         output[i] = sum;

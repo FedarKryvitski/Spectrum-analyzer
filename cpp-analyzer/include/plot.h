@@ -10,7 +10,7 @@ public:
     IPlot() noexcept = default;
     virtual ~IPlot() = default;
 
-    virtual void initialize(QCustomPlot* parent) = 0;
+    virtual void init(QCustomPlot* parent) = 0;
     virtual void update() = 0;
     virtual void addData(std::span<const double> source) = 0;
 
