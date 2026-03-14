@@ -7,9 +7,8 @@
 class AmplitudePlot final : public IPlot
 {
 public:
-    AmplitudePlot() noexcept;
+    AmplitudePlot(QCustomPlot* parent) noexcept;
 
-    void init(QCustomPlot* parent) override;
     void addData(std::span<const double> source) override;
     void update() override;
 

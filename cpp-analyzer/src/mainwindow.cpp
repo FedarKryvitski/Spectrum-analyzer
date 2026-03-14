@@ -6,10 +6,14 @@
 #include <QAudioDevice>
 #include <algorithm>
 
+// #include "utils.h"
+
+using namespace std::chrono_literals;
+
 namespace {
 
-constexpr auto kFps{ 60.f };
-constexpr auto kUpdateIntervalMsec{ 1000 / kFps };
+constexpr auto kFPS = 60;
+constexpr auto kPlotUpdateInterval = 1s / kFPS;
 
 } // namespace
 
@@ -22,26 +26,27 @@ MainWindow::MainWindow(QWidget *parent)
 
     init();
 
-    connect(&plotTimer_, &QTimer::timeout, this, [this](){
-        amplitudePlot_.update();
-        frequencyPlot_.update();
-    });
+    amplitudePlot_ = std::make_unique<AmplitudePlot>(ui->amplitudePlot);
+    frequencyPlot_ = std::make_unique<FrequencyPlot>(ui->frequencyPlot);
 
-    connect(&recorder_, &AudioRecorder::readyRead, this, &MainWindow::onReadyRead);
+    connect(ui->buttonStart, &QPushButton::clicked, this, &MainWindow::onStartSlot);
+    connect(ui->buttonStop, &QPushButton::clicked, this, &MainWindow::onStopSlot);
+    connect(ui->comboBox, &QComboBox::currentTextChanged, this, &MainWindow::onDeviceChangedSlot);
+    connect(&recorder_, &AudioRecorder::readyRead, this, &MainWindow::onDataSlot);
+
+    connect(&plotTimer_, &QTimer::timeout, this, [this](){
+        amplitudePlot_->update();
+        frequencyPlot_->update();
+    });
 }
 
 MainWindow::~MainWindow()
 {
-    stopRecording();
-
     delete ui;
 }
 
 void MainWindow::init()
 {
-    frequencyPlot_.init(ui->frequencyPlot);
-    amplitudePlot_.init(ui->amplitudePlot);
-
     QStringList deviceNames{};
     auto devices = QMediaDevices::audioInputs();
 
@@ -57,19 +62,31 @@ void MainWindow::init()
     recorder_.setDevice(defaultDeviceName);
 }
 
-void MainWindow::startRecording()
+void MainWindow::onStartSlot()
 {
     if (isRunning_)
         return;
 
     recorder_.start();
     player_.start();
-    plotTimer_.start(kUpdateIntervalMsec);
+
+    while (isRunning_)
+    {
+      // std::vector<float> data = recorder_.getData();
+      // {
+      //     std::lock_guard<std::mutex> lock(m_plotMutex);
+      //     frequencyPlot_.addData(data);
+      //     amplitudePlot_.addData(data);
+      // }
+      // player_.playSound(data);
+    }
+
+    plotTimer_.start(kPlotUpdateInterval);
 
     isRunning_ = true;
 }
 
-void MainWindow::stopRecording()
+void MainWindow::onStopSlot()
 {
     if (!isRunning_)
         return;
@@ -81,28 +98,18 @@ void MainWindow::stopRecording()
     isRunning_ = false;
 }
 
-void MainWindow::onReadyRead()
+void MainWindow::onDeviceChangedSlot(const QString& device)
+{
+    recorder_.setDevice(device);
+}
+
+void MainWindow::onDataSlot()
 {
     auto data = recorder_.data();
 
-    frequencyPlot_.addData(data);
-    amplitudePlot_.addData(data);
+    frequencyPlot_->addData(data);
+    amplitudePlot_->addData(data);
     player_.playSound(data);
 }
 
-void MainWindow::on_buttonStart_clicked()
-{
-    startRecording();
-}
-
-void MainWindow::on_buttonStop_clicked()
-{
-    stopRecording();
-}
-
-void MainWindow::on_comboBox_currentIndexChanged(int index)
-{
-    auto device = ui->comboBox->currentText();
-    recorder_.setDevice(device);
-}
 

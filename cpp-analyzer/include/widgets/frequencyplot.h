@@ -7,17 +7,13 @@
 class FrequencyPlot final : public IPlot
 {
 public:
-    FrequencyPlot() noexcept;
+    FrequencyPlot(QCustomPlot* parent) noexcept;
 
-    void init(QCustomPlot* parent) override;
     void addData(std::span<const double> source) override;
     void update() override;
 
 private:
-    void initializeAxisX();
-    void initializeAxisY();
-
-    void updateAxisY();
+    void init();
 
 private:
     QVector<double> axisX_, axisY_;

@@ -3,6 +3,8 @@
 #include <QDebug>
 #include <vector>
 
+namespace Alsa {
+
 namespace {
 
 constexpr size_t kChannels{ 1 };
@@ -70,3 +72,5 @@ void AudioPlayer::playSound(std::span<const double> data)
         }
     }
 }
+
+} // namespace Alsa

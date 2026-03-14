@@ -3,8 +3,8 @@
 
 #include "audiorecorder.h"
 #include "audioplayer.h"
-#include "frequencyplot.h"
-#include "amplitudeplot.h"
+#include "widgets/frequencyplot.h"
+#include "widgets/amplitudeplot.h"
 
 #include <QMainWindow>
 #include <QTimer>
@@ -24,27 +24,29 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_buttonStart_clicked();
-    void on_buttonStop_clicked();
-    void on_comboBox_currentIndexChanged(int index);
-    
-    void onReadyRead();
+    void onStartSlot();
+
+    void onStopSlot();
+
+    void onDeviceChangedSlot(const QString& device);
+
+    void onDataSlot();
 
 private:
     void init();
 
-    void startRecording();
-    void stopRecording();
-
 private:
     Ui::MainWindow *ui;
+
     AudioRecorder recorder_;
-    AudioPlayer player_;
-    FrequencyPlot frequencyPlot_;
-    AmplitudePlot amplitudePlot_;
+    Alsa::AudioPlayer player_;
+
+    std::unique_ptr<FrequencyPlot> frequencyPlot_;
+    std::unique_ptr<AmplitudePlot> amplitudePlot_;
 
     QTimer plotTimer_;
-    bool isRunning_{ false };
+
+    bool isRunning_{false};
 };
 
 #endif // MAINWINDOW_H

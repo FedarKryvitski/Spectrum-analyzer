@@ -5,6 +5,8 @@
 #include <span>
 #include <string>
 
+namespace Alsa {
+
 class AudioPlayer
 {
 public:
@@ -23,5 +25,7 @@ private:
     std::string device_{ "default" };
     bool isPlaying_{ false };
 };
+
+} // namespace Alsa
 
 #endif // AUDIOPLAYER_H

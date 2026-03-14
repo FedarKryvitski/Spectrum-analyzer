@@ -1,4 +1,4 @@
-#include "amplitudeplot.h"
+#include "widgets/amplitudeplot.h"
 
 #include <algorithm>
 
@@ -13,11 +13,8 @@ constexpr static size_t kBufferSize = kPlotDurationSec * kSampleRate / kSampleSt
 
 } // namespace
 
-AmplitudePlot::AmplitudePlot() noexcept
+AmplitudePlot::AmplitudePlot(QCustomPlot* parent) noexcept
     : buffer_(kBufferSize)
-{}
-
-void AmplitudePlot::init(QCustomPlot* parent)
 {
     plot_ = parent;
     plot_->xAxis->setRange(0, kPlotDurationSec);

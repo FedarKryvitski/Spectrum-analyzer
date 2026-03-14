@@ -7,22 +7,22 @@
 
 namespace fourier {
 
-using complex = std::complex<double>;
+using complex = std::complex<float>;
 
-constexpr size_t kSampleRate{ 44100 };
+constexpr float kDefaultSampleRate = 48000;
 
-std::vector<complex> dft(std::span<const double> input,
-                         std::span<const double> bins,
-                         double sampleRate);
+std::vector<complex> dft(std::span<const float> input,
+                         std::span<const float> bins,
+                         float sampleRate);
 
-std::vector<double> idft(std::span<const complex> input,
-                        std::span<const double> bins,
-                        double sampleRate,
+std::vector<float> idft(std::span<const complex> input,
+                        std::span<const float> bins,
+                        float sampleRate,
                         size_t size);
 
-std::vector<complex> fft(std::span<const double> input);
-std::vector<double> ifft(std::span<const complex> input);
-std::vector<double> fftFreqs(double sampleRate, size_t size);
+std::vector<complex> fft(std::span<const float> input);
+std::vector<float> ifft(std::span<const complex> input);
+std::vector<float> fftFreqs(float sampleRate, size_t size);
 
 }
 
