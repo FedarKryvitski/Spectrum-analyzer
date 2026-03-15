@@ -5,25 +5,27 @@
 #include <span>
 #include <string>
 
-namespace Alsa {
+namespace Alsa
+{
 
 class AudioPlayer
 {
-public:
+  public:
     AudioPlayer() noexcept = default;
     virtual ~AudioPlayer();
 
     void start();
+
     void stop();
 
-    void setDevice(const std::string& device);
+    void setDevice(const std::string &device);
 
     void playSound(std::span<const double> data);
 
-private:
-    snd_pcm_t *handle_{ nullptr };
-    std::string device_{ "default" };
-    bool isPlaying_{ false };
+  private:
+    snd_pcm_t *handle_{nullptr};
+    std::string device_{"default"};
+    bool isPlaying_{false};
 };
 
 } // namespace Alsa

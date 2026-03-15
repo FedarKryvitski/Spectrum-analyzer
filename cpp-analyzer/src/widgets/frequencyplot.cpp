@@ -13,6 +13,8 @@ constexpr static int kFrequencyBufferSize = 4096;
 
 } // namespace
 
+namespace Plot {
+
 FrequencyPlot::FrequencyPlot(QCustomPlot* parent) noexcept
     : buffer_(kFrequencyBufferSize)
     , axisX_(kFrequencyBufferSize, 0)
@@ -71,3 +73,5 @@ void FrequencyPlot::update()
     plot_->graph(0)->addData(0.0, -60.0);
     plot_->replot();
 }
+
+} // namespace Plot

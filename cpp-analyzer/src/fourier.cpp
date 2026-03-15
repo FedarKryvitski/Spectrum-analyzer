@@ -1,19 +1,21 @@
 #include "fourier.h"
 
+#include <algorithm>
 #include <cmath>
 #include <numbers>
-#include <algorithm>
 #include <numeric>
 
-namespace fourier {
+namespace fourier
+{
 
-namespace {
+namespace
+{
 
 constexpr auto pi = std::numbers::pi;
 
 int upper_log2(const int x)
 {
-    constexpr int upperBound{ 30 };
+    constexpr int upperBound{30};
 
     int i = 0;
     while (i < upperBound)
@@ -29,10 +31,10 @@ int upper_log2(const int x)
 
 const std::vector<complex> phase_vec(const int len)
 {
-    constexpr float radius{ 1.f };
+    constexpr float radius{1.f};
 
     std::vector<complex> res(len);
-    std::generate(res.begin(), res.end(), [&, i=0]() mutable {
+    std::generate(res.begin(), res.end(), [&, i = 0]() mutable {
         const float phase = -2.f * pi * i++ / len;
         return std::polar(radius, phase);
     });
@@ -40,10 +42,7 @@ const std::vector<complex> phase_vec(const int len)
     return res;
 }
 
-void forward(std::vector<complex>& prev,
-             std::vector<complex>& temp,
-             const std::vector<complex>& phases,
-             const int turn,
+void forward(std::vector<complex> &prev, std::vector<complex> &temp, const std::vector<complex> &phases, const int turn,
              const int n_bits)
 {
     if (turn == n_bits)
@@ -68,7 +67,7 @@ void forward(std::vector<complex>& prev,
     }
 }
 
-void bit_reversal_permutation(std::vector<complex>& vec, const int n_bits)
+void bit_reversal_permutation(std::vector<complex> &vec, const int n_bits)
 {
     if (vec.size() <= 2)
         return;
@@ -136,9 +135,7 @@ std::vector<complex> ifftImpl(std::span<const complex> inputs)
 
 } // namespace
 
-std::vector<complex> dft(std::span<const float> input,
-                         std::span<const float> bins,
-                         float sampleRate)
+std::vector<complex> dft(std::span<const float> input, std::span<const float> bins, float sampleRate)
 {
     std::vector<complex> output(bins.size());
 
@@ -158,9 +155,7 @@ std::vector<complex> dft(std::span<const float> input,
     return output;
 }
 
-std::vector<float> idft(std::span<const complex> amplitudes,
-                        std::span<const float> bins,
-                        float sampleRate,
+std::vector<float> idft(std::span<const complex> amplitudes, std::span<const float> bins, float sampleRate,
                         const size_t size)
 {
     if (amplitudes.size() != bins.size())
@@ -183,9 +178,7 @@ std::vector<float> idft(std::span<const complex> amplitudes,
 std::vector<complex> fft(std::span<const float> input)
 {
     std::vector<complex> data(input.size());
-    std::ranges::transform(input, data.begin(), [](const auto& num) {
-        return std::complex(num, 0.f);
-    });
+    std::ranges::transform(input, data.begin(), [](const auto &num) { return std::complex(num, 0.f); });
 
     return fftImpl(data);
 }
@@ -196,9 +189,7 @@ std::vector<float> ifft(std::span<const complex> input)
     const auto data = ifftImpl(input);
 
     std::vector<float> result(data.size());
-    std::ranges::transform(data, result.begin(), [inputSize](const auto& num) {
-        return num.real() / inputSize;
-    });
+    std::ranges::transform(data, result.begin(), [inputSize](const auto &num) { return num.real() / inputSize; });
 
     return result;
 }
@@ -215,6 +206,5 @@ std::vector<float> fftFreqs(float sampleRate, size_t size)
     }
     return freqs;
 }
-
 
 } // namespace fourier

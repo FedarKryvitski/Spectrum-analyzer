@@ -3,7 +3,8 @@
 
 #include "plugin.h"
 
-namespace Plugins {
+namespace Plugins
+{
 
 class Gainer : public IPlugin
 {
@@ -12,15 +13,21 @@ class Gainer : public IPlugin
     ~Gainer() override = default;
 
   public:
-    void setGainLevel(const double gainLevel) { gainLevel_ = gainLevel; }
-    double getGainLevel() const { return gainLevel_; }
+    void setGainLevel(const double gainLevel)
+    {
+        gainLevel_ = gainLevel;
+    }
+    double getGainLevel() const
+    {
+        return gainLevel_;
+    }
 
-    Buffer process(Buffer buffer);
+    Buffer process(Buffer buffer) override;
 
   protected:
     double gainLevel_{1.0};
 };
 
-}
+} // namespace Plugins
 
 #endif // GAINER_H

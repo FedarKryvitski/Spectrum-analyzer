@@ -1,13 +1,16 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
-namespace Alsa {
-namespace Utils{
+namespace Alsa
+{
+namespace Utils
+{
 
-struct DeviceInfo {
+struct DeviceInfo
+{
     std::string name;
     std::string displayName;
 };
@@ -16,7 +19,7 @@ std::vector<DeviceInfo> getAudioInputDevices();
 
 std::vector<DeviceInfo> getAudioOutputDevices();
 
-}
-}
+} // namespace Utils
+} // namespace Alsa
 
 #endif // UTILS_H

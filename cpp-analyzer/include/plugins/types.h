@@ -4,10 +4,12 @@
 #include <complex>
 #include <vector>
 
-namespace Pipeline {
+namespace Pipeline
+{
 
 using Sample = double;
 using Complex = std::complex<Sample>;
+
 using Buffer = std::vector<Sample>;
 using ComplexBuffer = std::vector<Complex>;
 

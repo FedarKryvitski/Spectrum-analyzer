@@ -1,47 +1,51 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QTimer>
-#include <QMediaDevices>
 #include <QAudioDevice>
+#include <QMediaDevices>
+#include <QTimer>
+
 #include <algorithm>
 
 // #include "utils.h"
 
 using namespace std::chrono_literals;
 
-namespace {
+namespace
+{
 
 constexpr auto kFPS = 60;
 constexpr auto kPlotUpdateInterval = 1s / kFPS;
 
 } // namespace
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-    , plotTimer_(this)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    init();
+    audioPlayer_ = std::make_unique<Alsa::AudioPlayer>();
+    amplitudePlot_ = std::make_unique<Plot::AmplitudePlot>(ui->amplitudePlot);
+    frequencyPlot_ = std::make_unique<Plot::FrequencyPlot>(ui->frequencyPlot);
 
-    amplitudePlot_ = std::make_unique<AmplitudePlot>(ui->amplitudePlot);
-    frequencyPlot_ = std::make_unique<FrequencyPlot>(ui->frequencyPlot);
+    connect(ui->recordingButton, &QPushButton::toggled, this, &MainWindow::onRecordingButtonToggledSlot);
+    connect(ui->deviceComboBox, &QComboBox::currentTextChanged, this, &MainWindow::onDeviceChangedSlot);
 
-    connect(ui->buttonStart, &QPushButton::clicked, this, &MainWindow::onStartSlot);
-    connect(ui->buttonStop, &QPushButton::clicked, this, &MainWindow::onStopSlot);
-    connect(ui->comboBox, &QComboBox::currentTextChanged, this, &MainWindow::onDeviceChangedSlot);
-    connect(&recorder_, &AudioRecorder::readyRead, this, &MainWindow::onDataSlot);
+    audioRecorder_ = new AudioRecorder(this);
+    connect(audioRecorder_, &AudioRecorder::readyRead, this, &MainWindow::onDataSlot);
 
-    connect(&plotTimer_, &QTimer::timeout, this, [this](){
+    plotTimer_ = new QTimer(this);
+    connect(plotTimer_, &QTimer::timeout, this, [this]() {
         amplitudePlot_->update();
         frequencyPlot_->update();
     });
+
+    init();
 }
 
 MainWindow::~MainWindow()
 {
+    stopRecording();
+
     delete ui;
 }
 
@@ -50,66 +54,68 @@ void MainWindow::init()
     QStringList deviceNames{};
     auto devices = QMediaDevices::audioInputs();
 
-    std::ranges::transform(devices, std::back_inserter(deviceNames), [](const QAudioDevice& device){
-        return device.description();
-    });
+    std::ranges::transform(devices, std::back_inserter(deviceNames),
+                           [](const QAudioDevice &device) { return device.description(); });
 
-    ui->comboBox->addItems(deviceNames);
+    ui->deviceComboBox->addItems(deviceNames);
 
     QAudioDevice defaultDevice = QMediaDevices::defaultAudioInput();
     QString defaultDeviceName = defaultDevice.description();
 
-    recorder_.setDevice(defaultDeviceName);
+    audioRecorder_->setDevice(defaultDeviceName);
 }
 
-void MainWindow::onStartSlot()
+void MainWindow::onRecordingButtonToggledSlot(const bool checked)
+{
+    if (checked)
+    {
+        startRecording();
+        ui->recordingButton->setText("Stop");
+    }
+    else
+    {
+        stopRecording();
+        ui->recordingButton->setText("Start");
+    }
+}
+
+void MainWindow::startRecording()
 {
     if (isRunning_)
         return;
 
-    recorder_.start();
-    player_.start();
-
-    while (isRunning_)
-    {
-      // std::vector<float> data = recorder_.getData();
-      // {
-      //     std::lock_guard<std::mutex> lock(m_plotMutex);
-      //     frequencyPlot_.addData(data);
-      //     amplitudePlot_.addData(data);
-      // }
-      // player_.playSound(data);
-    }
-
-    plotTimer_.start(kPlotUpdateInterval);
+    audioRecorder_->start();
+    audioPlayer_->start();
+    plotTimer_->start(kPlotUpdateInterval);
 
     isRunning_ = true;
 }
 
-void MainWindow::onStopSlot()
+void MainWindow::stopRecording()
 {
     if (!isRunning_)
         return;
 
-    recorder_.stop();
-    player_.stop();
-    plotTimer_.stop();
+    audioRecorder_->stop();
+    audioPlayer_->stop();
+    plotTimer_->stop();
+
+    amplitudePlot_->clear();
+    amplitudePlot_->update();
 
     isRunning_ = false;
 }
 
-void MainWindow::onDeviceChangedSlot(const QString& device)
+void MainWindow::onDeviceChangedSlot(const QString &device)
 {
-    recorder_.setDevice(device);
+    audioRecorder_->setDevice(device);
 }
 
 void MainWindow::onDataSlot()
 {
-    auto data = recorder_.data();
+    auto data = audioRecorder_->data();
 
     frequencyPlot_->addData(data);
     amplitudePlot_->addData(data);
-    player_.playSound(data);
+    audioPlayer_->playSound(data);
 }
-
-

@@ -1,15 +1,18 @@
 #include "audioplayer.h"
 
-#include <QDebug>
+#include <algorithm>
+#include <iostream>
 #include <vector>
 
-namespace Alsa {
+namespace Alsa
+{
 
-namespace {
+namespace
+{
 
-constexpr size_t kChannels{ 1 };
-constexpr size_t kSampleRate{ 44100 };
-constexpr snd_pcm_format_t kFormat{ SND_PCM_FORMAT_FLOAT };
+constexpr size_t kChannels{1};
+constexpr size_t kSampleRate{44100};
+constexpr snd_pcm_format_t kFormat{SND_PCM_FORMAT_FLOAT};
 
 } // namespace
 
@@ -18,7 +21,7 @@ AudioPlayer::~AudioPlayer()
     stop();
 }
 
-void AudioPlayer::setDevice(const std::string& device)
+void AudioPlayer::setDevice(const std::string &device)
 {
     device_ = device;
 }
@@ -28,17 +31,17 @@ void AudioPlayer::start()
     if (isPlaying_)
         return;
 
-    int err = snd_pcm_open (&handle_, device_.c_str(),
-                           SND_PCM_STREAM_PLAYBACK, 0);
-    if (err < 0) {
-        qDebug() << "cannot open audio device " << device_ << snd_strerror(err);
+    int err = snd_pcm_open(&handle_, device_.c_str(), SND_PCM_STREAM_PLAYBACK, 0);
+    if (err < 0)
+    {
+        std::cout << "Cannot open audio device " << device_ << snd_strerror(err);
         return;
     }
 
-    err = snd_pcm_set_params(handle_, kFormat, SND_PCM_ACCESS_RW_INTERLEAVED,
-                             kChannels, kSampleRate, 1, 50000);
-    if (err < 0) {
-        qDebug() << "Playback open error: " << snd_strerror(err);
+    err = snd_pcm_set_params(handle_, kFormat, SND_PCM_ACCESS_RW_INTERLEAVED, kChannels, kSampleRate, 1, 50000);
+    if (err < 0)
+    {
+        std::cout << "Playback open error: " << snd_strerror(err);
         return;
     }
 
@@ -58,17 +61,19 @@ void AudioPlayer::stop()
 void AudioPlayer::playSound(std::span<const double> data)
 {
     std::vector<float> buffer(data.size());
-    std::ranges::transform(data, buffer.begin(), [](const auto& elem){
-        return static_cast<float>(elem);
-    });
+    std::ranges::transform(data, buffer.begin(), [](const auto &elem) { return static_cast<float>(elem); });
 
     int err = snd_pcm_writei(handle_, buffer.data(), buffer.size() / kChannels);
-    if (err < 0) {
-        if (err == -EPIPE) {
-            qDebug() << "XRUN (переполнение буфера), восстанавливаем...";
+    if (err < 0)
+    {
+        if (err == -EPIPE)
+        {
+            std::cerr << "buffer overflow";
             snd_pcm_prepare(handle_);
-        } else {
-            qDebug() << "write to audio interface failed" << snd_strerror(err);
+        }
+        else
+        {
+            std::cerr << "write to audio interface failed" << snd_strerror(err);
         }
     }
 }

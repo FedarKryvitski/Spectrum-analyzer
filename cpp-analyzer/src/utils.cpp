@@ -5,8 +5,10 @@
 
 #include <QDebug>
 
-namespace Alsa {
-namespace Utils{
+namespace Alsa
+{
+namespace Utils
+{
 
 using namespace std::string_literals;
 
@@ -16,24 +18,22 @@ std::vector<DeviceInfo> getAudioInputDevices()
 
     snd_ctl_t *ctl;
     snd_ctl_card_info_t *info;
-    int rcard{ -1 };
+    int rcard{-1};
 
-    while(1)
+    while (1)
     {
         snd_card_next(&rcard);
-        if(rcard == -1)
+        if (rcard == -1)
             break;
 
         std::string name = "hw:"s + std::to_string(rcard);
 
         snd_ctl_card_info_alloca(&info);
 
-        if (snd_ctl_open(&ctl, name.c_str(), 0) >= 0) {
+        if (snd_ctl_open(&ctl, name.c_str(), 0) >= 0)
+        {
             snd_ctl_card_info(ctl, info);
-            printf("Card %d: %s - %s\n",
-                   rcard,
-                   snd_ctl_card_info_get_name(info),
-                   snd_ctl_card_info_get_longname(info));
+            printf("Card %d: %s - %s\n", rcard, snd_ctl_card_info_get_name(info), snd_ctl_card_info_get_longname(info));
             snd_ctl_close(ctl);
         }
 

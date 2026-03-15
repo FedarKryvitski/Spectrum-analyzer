@@ -3,7 +3,8 @@
 
 #include "types.h"
 
-namespace Pipeline {
+namespace Pipeline
+{
 
 class PipelineSource
 {

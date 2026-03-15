@@ -1,16 +1,16 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "audiorecorder.h"
 #include "audioplayer.h"
-#include "widgets/frequencyplot.h"
+#include "audiorecorder.h"
 #include "widgets/amplitudeplot.h"
+#include "widgets/frequencyplot.h"
 
 #include <QMainWindow>
-#include <QTimer>
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
+namespace Ui
+{
 class MainWindow;
 }
 QT_END_NAMESPACE
@@ -19,32 +19,35 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-public:
+  public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
-    void onStartSlot();
+  private slots:
+    void onRecordingButtonToggledSlot(const bool checked);
 
-    void onStopSlot();
-
-    void onDeviceChangedSlot(const QString& device);
+    void onDeviceChangedSlot(const QString &device);
 
     void onDataSlot();
 
-private:
+  private:
     void init();
 
-private:
+    void startRecording();
+
+    void stopRecording();
+
+  private:
     Ui::MainWindow *ui;
 
-    AudioRecorder recorder_;
-    Alsa::AudioPlayer player_;
+    // TODO make ALSA
+    AudioRecorder *audioRecorder_{nullptr};
+    std::unique_ptr<Alsa::AudioPlayer> audioPlayer_{nullptr};
 
-    std::unique_ptr<FrequencyPlot> frequencyPlot_;
-    std::unique_ptr<AmplitudePlot> amplitudePlot_;
+    std::unique_ptr<Plot::FrequencyPlot> frequencyPlot_{nullptr};
+    std::unique_ptr<Plot::AmplitudePlot> amplitudePlot_{nullptr};
 
-    QTimer plotTimer_;
+    QTimer *plotTimer_;
 
     bool isRunning_{false};
 };

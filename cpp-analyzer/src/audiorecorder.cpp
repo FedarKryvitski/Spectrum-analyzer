@@ -1,22 +1,23 @@
 #include "audiorecorder.h"
 
-#include <QAudioFormat>
-#include <QMediaDevices>
 #include <QAudioDevice>
+#include <QAudioFormat>
 #include <QAudioSource>
-#include <QDebug>
 #include <QByteArray>
+#include <QDebug>
+#include <QMediaDevices>
 
-namespace {
+namespace
+{
 
-constexpr size_t kChannels{ 1 };
-constexpr size_t kSampleRate{ 44100 };
+constexpr size_t kChannels{1};
+constexpr size_t kSampleRate{44100};
 
 } // namespace
 
-AudioRecorder::AudioRecorder(QObject *parent) noexcept
-    : QObject(parent)
-{}
+AudioRecorder::AudioRecorder(QObject *parent) noexcept : QObject(parent)
+{
+}
 
 AudioRecorder::~AudioRecorder()
 {
@@ -45,9 +46,8 @@ void AudioRecorder::start()
     format.setSampleFormat(QAudioFormat::Int16);
 
     auto audioDeviceList = QMediaDevices::audioInputs();
-    auto deviceIt = std::ranges::find_if(audioDeviceList, [&](const auto& device){
-        return device.description() == deviceName_;
-    });
+    auto deviceIt =
+        std::ranges::find_if(audioDeviceList, [&](const auto &device) { return device.description() == deviceName_; });
 
     if (deviceIt == audioDeviceList.end())
     {
@@ -56,7 +56,8 @@ void AudioRecorder::start()
     }
 
     auto audioDevice = *deviceIt;
-    if (!audioDevice.isFormatSupported(format)) {
+    if (!audioDevice.isFormatSupported(format))
+    {
         qWarning() << "[AudioRecorder::start()] Format not supported";
         return;
     }
@@ -66,15 +67,14 @@ void AudioRecorder::start()
     audioSource_ = std::make_unique<QAudioSource>(audioDevice, format, this);
 
     IODevice_ = audioSource_->start();
-    if (!IODevice_) {
+    if (!IODevice_)
+    {
         qWarning() << "[AudioRecorder::start()] Failed to start";
         audioSource_.reset();
         return;
     }
 
-    connect(IODevice_, &QIODevice::readyRead, this, [this](){
-        emit readyRead();
-    });
+    connect(IODevice_, &QIODevice::readyRead, this, [this]() { emit readyRead(); });
 
     isRecording_ = true;
 }
@@ -88,7 +88,7 @@ std::vector<double> AudioRecorder::data()
     QByteArray byteArray = IODevice_->read(bytes);
 
     auto size = byteArray.size() / sizeof(int16_t);
-    const int16_t *ptr = reinterpret_cast<const int16_t*>(byteArray.constData());
+    const int16_t *ptr = reinterpret_cast<const int16_t *>(byteArray.constData());
 
     std::vector<double> data;
     for (int i = 0; i < size; ++i)
@@ -111,7 +111,8 @@ void AudioRecorder::stop()
 
 void AudioRecorder::reset()
 {
-    if (audioSource_) {
+    if (audioSource_)
+    {
         audioSource_->stop();
     }
 

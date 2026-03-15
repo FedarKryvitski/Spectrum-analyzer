@@ -1,12 +1,14 @@
 #ifndef PLUGIN_H
 #define PLUGIN_H
 
-#include <vector>
 #include <complex>
+#include <vector>
 
-namespace Plugins {
+namespace Plugins
+{
 
-class IPlugin {
+class IPlugin
+{
   public:
     using Sample = double;
     using Complex = std::complex<Sample>;
@@ -16,7 +18,9 @@ class IPlugin {
     IPlugin() noexcept = default;
     virtual ~IPlugin() = default;
 
-    Buffer process(Buffer input);
+    virtual Buffer process(Buffer input) = 0;
+    // virtual void setSink(IPipelineSink);
+    // virtual void setSource(IPipelineSource);
 };
 
 } // namespace Plugins

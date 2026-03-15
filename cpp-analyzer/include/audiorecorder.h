@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <QString>
-#include <vector>
 #include <memory>
+#include <vector>
 
 QT_FORWARD_DECLARE_CLASS(QAudioSource)
 QT_FORWARD_DECLARE_CLASS(QAudioDevice)
@@ -13,7 +13,7 @@ QT_FORWARD_DECLARE_CLASS(QIODevice)
 class AudioRecorder : public QObject
 {
     Q_OBJECT
-public:
+  public:
     explicit AudioRecorder(QObject *parent = nullptr) noexcept;
     ~AudioRecorder() override;
 
@@ -24,19 +24,18 @@ public:
 
     std::vector<double> data();
 
-signals:
+  signals:
     void readyRead();
 
-private:
+  private:
     void reset();
 
-private:
-    std::unique_ptr<QAudioSource> audioSource_{ nullptr };
-    QIODevice *IODevice_{ nullptr };
+  private:
+    std::unique_ptr<QAudioSource> audioSource_{nullptr};
+    QIODevice *IODevice_{nullptr};
 
     QString deviceName_;
-    bool isRecording_{ false };
+    bool isRecording_{false};
 };
 
 #endif // AUDIORECORDER_H
-

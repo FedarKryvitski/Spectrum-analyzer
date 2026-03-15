@@ -3,7 +3,9 @@
 
 #include "plugins/types.h"
 
-namespace Pipeline {
+namespace Pipeline
+{
+
 class PipelineSink
 {
   public:
