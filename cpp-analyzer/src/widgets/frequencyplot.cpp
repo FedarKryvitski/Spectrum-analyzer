@@ -47,10 +47,10 @@ void FrequencyPlot::init()
 void FrequencyPlot::addData(std::span<const double> source)
 {
     if constexpr (kChannels == 2) {
-        auto monoSource = AudioConverter::createMono(source);
-        std::ranges::for_each(monoSource, [this](float elem){
-            buffer_.push(elem);
-        });
+        // auto monoSource = AudioConverter::createMono(source);
+        // std::ranges::for_each(monoSource, [this](float elem){
+        //     buffer_.push(elem);
+        // });
     }
     else {
         std::ranges::for_each(source, [this](float elem){

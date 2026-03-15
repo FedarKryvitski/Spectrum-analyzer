@@ -1,15 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "audioconverter.h"
+
 #include <QTimer>
-
-// TODO delete
-#include <algorithm>
-
-using namespace std::chrono_literals;
 
 namespace
 {
+
+using namespace std::chrono_literals;
 
 constexpr auto kFPS = 60;
 constexpr auto kPlotUpdateInterval = 1s / kFPS;
@@ -47,8 +46,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::init()
 {
-    static const QString defaultDeviceName{ "default" };
-    static const QStringList deviceNames{ defaultDeviceName };
+    static const QString defaultDeviceName{"default"};
+    static const QStringList deviceNames{defaultDeviceName};
 
     ui->deviceComboBox->addItems(deviceNames);
 }
@@ -72,7 +71,7 @@ void MainWindow::startRecording()
     if (isRunning_)
         return;
 
-    workerThread_ = std::jthread{[this](){
+    workerThread_ = std::jthread{[this]() {
         audioRecorder_->start();
         audioPlayer_->start();
 
@@ -83,15 +82,11 @@ void MainWindow::startRecording()
             auto data = audioRecorder_->read();
             audioPlayer_->write(data.data(), data.size());
 
-            QVector<double> vec;
-            std::ranges::transform(data, std::back_inserter(vec), [](const auto& elem){
-                return static_cast<double>(elem) / std::numeric_limits<int16_t>::max();
-            });
-
+            auto convertedData = AudioConverter::toDoubleVector(data);
             {
                 std::lock_guard lock(mutex_);
-                frequencyPlot_->addData(vec);
-                amplitudePlot_->addData(vec);
+                frequencyPlot_->addData(convertedData);
+                amplitudePlot_->addData(convertedData);
             }
         }
 

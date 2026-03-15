@@ -8,8 +8,8 @@
 
 #include <QMainWindow>
 
-#include <thread>
 #include <mutex>
+#include <thread>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
