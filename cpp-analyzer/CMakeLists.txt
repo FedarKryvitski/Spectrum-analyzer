@@ -34,6 +34,7 @@ find_package(Qt6 REQUIRED COMPONENTS
 )
 
 find_package(ALSA REQUIRED)
+find_package(fft CONFIG REQUIRED)
 
 qt_add_executable(${PROJECT_NAME}
     MANUAL_FINALIZATION
@@ -66,6 +67,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Multimedia
     Qt${QT_VERSION_MAJOR}::Concurrent
     ALSA::ALSA
+    fft::fft
     QCustomPlot
 )
 

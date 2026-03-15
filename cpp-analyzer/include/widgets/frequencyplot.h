@@ -2,25 +2,30 @@
 #define FREQUENCYPLOT_H
 
 #include "plot.h"
-#include "ringbuffer.h"
 
-namespace Plot {
+namespace Plot
+{
 
 class FrequencyPlot final : public IPlot
 {
-public:
-    FrequencyPlot(QCustomPlot* parent) noexcept;
+  public:
+    FrequencyPlot(QCustomPlot *parent) noexcept;
 
     void addData(std::span<const double> source) override;
     void update() override;
-    void clear() override {};
+    void clear() override;
 
-private:
+  private:
     void init();
+    void processData();
 
-private:
-    QVector<double> axisX_, axisY_;
-    RingBuffer<double> buffer_;
+  private:
+    std::vector<double> buffer_, processedData_;
+
+    std::vector<int> fft_ip;
+    std::vector<double> fft_w, fft_window, frequency_axis;
+    size_t firstBin = 0;
+    size_t lastBin = 0;
 };
 
 } // namespace Plot

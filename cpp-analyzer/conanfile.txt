@@ -1,0 +1,7 @@
+[requires]
+fft/cci.20061228
+[generators]
+CMakeDeps
+CMakeToolchain
+[layout]
+cmake_layout

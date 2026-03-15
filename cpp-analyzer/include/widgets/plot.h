@@ -4,14 +4,15 @@
 #include <qcustomplot.h>
 #include <span>
 
-namespace Plot {
+namespace Plot
+{
 
 using Sample = double;
 using Data = std::span<const Sample>;
 
 class IPlot
 {
-public:
+  public:
     IPlot() noexcept = default;
     virtual ~IPlot() = default;
 
@@ -19,8 +20,8 @@ public:
     virtual void clear() = 0;
     virtual void addData(Data data) = 0;
 
-protected:
-    QCustomPlot* plot_;
+  protected:
+    QCustomPlot *plot_;
 };
 
 } // namespace Plot
