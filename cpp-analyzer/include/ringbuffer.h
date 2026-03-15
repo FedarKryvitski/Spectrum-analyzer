@@ -1,91 +1,95 @@
 #ifndef RINGBUFFER_H
 #define RINGBUFFER_H
 
-#include <vector>
 #include <stdexcept>
+#include <vector>
 
-template <typename T>
-class RingBuffer final{
-public:
-    RingBuffer(int capacity) noexcept;
+template <typename T> class RingBuffer final
+{
+  public:
+    RingBuffer(size_t capacity) noexcept;
+    ~RingBuffer() = default;
 
-    void push(const T& item);
+    void push(const T &item);
     void pop();
     void clear();
 
     T front() const;
-    int size() const;
-    int capacity() const;
+    size_t size() const;
+    size_t capacity() const;
     bool isEmpty() const;
     bool isFull() const;
 
-private:
-    std::vector<T> m_buffer;
-    int m_capacity{}, m_size{};
-    int m_head{}, m_tail{};
+  private:
+    std::vector<T> buffer_;
+    size_t capacity_{}, size_{};
+    size_t head_{}, tail_{};
 };
 
-template<typename T>
-RingBuffer<T>::RingBuffer(int capacity) noexcept
-    : m_capacity(capacity)
+template <typename T> RingBuffer<T>::RingBuffer(size_t capacity) noexcept : capacity_(capacity)
 {
-    m_buffer.resize(capacity);
+    buffer_.resize(capacity);
 }
 
-template<typename T>
-void RingBuffer<T>::clear() {
-    m_size = 0;
-    m_head = 0;
-    m_tail = 0;
+template <typename T> void RingBuffer<T>::clear()
+{
+    size_ = 0;
+    head_ = 0;
+    tail_ = 0;
 }
 
-template<typename T>
-bool RingBuffer<T>::isEmpty() const {
-    return m_size == 0;
+template <typename T> bool RingBuffer<T>::isEmpty() const
+{
+    return size_ == 0;
 }
 
-template<typename T>
-bool RingBuffer<T>::isFull() const {
-    return m_size == m_capacity;
+template <typename T> bool RingBuffer<T>::isFull() const
+{
+    return size_ == capacity_;
 }
 
-template<typename T>
-void RingBuffer<T>::push(const T& item) {
-    if (isFull()) {
-        m_tail = (m_tail + 1) % m_capacity;
-    } else {
-        m_size++;
+template <typename T> void RingBuffer<T>::push(const T &item)
+{
+    if (isFull())
+    {
+        tail_ = (tail_ + 1) % capacity_;
     }
-    m_buffer[m_head] = item;
-    m_head = (m_head + 1) % m_capacity;
+    else
+    {
+        size_++;
+    }
+    buffer_[head_] = item;
+    head_ = (head_ + 1) % capacity_;
 }
 
-template<typename T>
-T RingBuffer<T>::front() const {
-    if (isEmpty()) {
+template <typename T> T RingBuffer<T>::front() const
+{
+    if (isEmpty())
+    {
         throw std::runtime_error("Buffer is empty");
     }
-    T item = m_buffer[m_tail];
+    T item = buffer_[tail_];
     return item;
 }
 
-template<typename T>
-void RingBuffer<T>::pop() {
-    if (isEmpty()) {
+template <typename T> void RingBuffer<T>::pop()
+{
+    if (isEmpty())
+    {
         throw std::runtime_error("Buffer is empty");
     }
-    m_tail = (m_tail + 1) % m_capacity;
-    m_size--;
+    tail_ = (tail_ + 1) % capacity_;
+    size_--;
 }
 
-template<typename T>
-int RingBuffer<T>::size() const {
-    return m_size;
+template <typename T> size_t RingBuffer<T>::size() const
+{
+    return size_;
 }
 
-template<typename T>
-int RingBuffer<T>::capacity() const {
-    return m_capacity;
+template <typename T> size_t RingBuffer<T>::capacity() const
+{
+    return capacity_;
 }
 
 #endif // RINGBUFFER_H

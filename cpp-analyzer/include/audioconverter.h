@@ -1,19 +1,15 @@
 #ifndef AUDIOCONVERTER_H
 #define AUDIOCONVERTER_H
 
-#include <vector>
-#include <QByteArray>
+#include <cstdint>
 #include <span>
+#include <vector>
 
-namespace AudioConverter {
+namespace AudioConverter
+{
 
-QByteArray fromFloatArray(const std::span<float>& source);
-std::vector<float> fromByteArray(const std::span<int8_t>& source);
-std::vector<float> fromByteArray(const QByteArray& source);
+std::vector<double> toDoubleVector(std::span<const int16_t> data);
 
-std::vector<float> createMono(const std::span<float>& source);
-std::vector<float> createStereo(const std::span<float>& source);
-
-};
+}; // namespace AudioConverter
 
 #endif // AUDIOCONVERTER_H

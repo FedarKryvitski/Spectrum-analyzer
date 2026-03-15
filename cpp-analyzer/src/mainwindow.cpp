@@ -1,91 +1,119 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QAudioSource>
-#include <QAudioFormat>
-#include <QMediaDevices>
-#include <QAudioDevice>
-#include <QIODevice>
-#include <QMessageBox>
+
+#include "audioconverter.h"
+
 #include <QTimer>
-#include <span>
+
+namespace
+{
 
 using namespace std::chrono_literals;
 
-namespace {
-
-constexpr uint32_t PLOT_UPDATE_MS = 1000 / 60;
+constexpr auto kFPS = 60;
+constexpr auto kPlotUpdateInterval = 1s / kFPS;
 
 } // namespace
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-    , m_plotTimer(this)
-    , m_isRunning(false)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    m_frequencyPlot.initialize(ui->frequencyPlot);
-    m_amplitudePlot.initialize(ui->amplitudePlot);
+    audioPlayer_ = std::make_unique<Alsa::AudioPlayer>();
+    audioRecorder_ = std::make_unique<Alsa::AudioRecorder>();
+    amplitudePlot_ = std::make_unique<Plot::AmplitudePlot>(ui->amplitudePlot);
+    frequencyPlot_ = std::make_unique<Plot::FrequencyPlot>(ui->frequencyPlot);
 
-    connect(&m_plotTimer, &QTimer::timeout, this, [this](){
-        std::lock_guard<std::mutex> lock(m_plotMutex);
-        m_amplitudePlot.updatePlot();
-        m_frequencyPlot.updatePlot();
+    connect(ui->recordingButton, &QPushButton::toggled, this, &MainWindow::onRecordingButtonToggledSlot);
+    connect(ui->deviceComboBox, &QComboBox::currentTextChanged, this, &MainWindow::onDeviceChangedSlot);
+
+    plotTimer_ = new QTimer(this);
+    connect(plotTimer_, &QTimer::timeout, this, [this]() {
+        std::lock_guard lock(mutex_);
+        amplitudePlot_->update();
+        frequencyPlot_->update();
     });
+
+    init();
 }
 
 MainWindow::~MainWindow()
 {
     stopRecording();
+
     delete ui;
+}
+
+void MainWindow::init()
+{
+    static const QString defaultDeviceName{"default"};
+    static const QStringList deviceNames{defaultDeviceName};
+
+    ui->deviceComboBox->addItems(deviceNames);
+}
+
+void MainWindow::onRecordingButtonToggledSlot(const bool checked)
+{
+    if (checked)
+    {
+        startRecording();
+        ui->recordingButton->setText("Stop");
+    }
+    else
+    {
+        stopRecording();
+        ui->recordingButton->setText("Start");
+    }
 }
 
 void MainWindow::startRecording()
 {
-    if (m_isRunning)
+    if (isRunning_)
         return;
 
-    m_isRunning = true;
-    m_soundThread.reset(new std::jthread([this](){
-        m_recorder.start();
-        m_player.start();
+    workerThread_ = std::jthread{[this]() {
+        audioRecorder_->start();
+        audioPlayer_->start();
 
-        while (m_isRunning)
+        isRunning_ = true;
+
+        while (isRunning_)
         {
-            std::vector<float> data = m_recorder.getData();
+            auto data = audioRecorder_->read();
+            audioPlayer_->write(data.data(), data.size());
+
+            auto convertedData = AudioConverter::toDoubleVector(data);
             {
-                std::lock_guard<std::mutex> lock(m_plotMutex);
-                m_frequencyPlot.addData(data);
-                m_amplitudePlot.addData(data);
+                std::lock_guard lock(mutex_);
+                frequencyPlot_->addData(convertedData);
+                amplitudePlot_->addData(convertedData);
             }
-            m_player.playSound(data);
         }
 
-        m_recorder.stop();
-        m_player.stop();
-    }));
+        audioRecorder_->stop();
+        audioPlayer_->stop();
+    }};
 
-    m_plotTimer.start(PLOT_UPDATE_MS);
+    plotTimer_->start(kPlotUpdateInterval);
 }
 
 void MainWindow::stopRecording()
 {
-    if (!m_isRunning)
+    if (!isRunning_)
         return;
 
-    m_isRunning = false;
-    m_soundThread.reset();
-    m_plotTimer.stop();
+    isRunning_ = false;
+
+    workerThread_ = {};
+
+    plotTimer_->stop();
+    amplitudePlot_->clear();
+    amplitudePlot_->update();
 }
 
-void MainWindow::on_buttonStart_clicked()
+void MainWindow::onDeviceChangedSlot(const QString &device)
 {
-    startRecording();
-}
+    audioRecorder_->setDevice(device.toStdString());
 
-void MainWindow::on_buttonStop_clicked()
-{
-    stopRecording();
+    ui->recordingButton->setEnabled(true);
 }
-

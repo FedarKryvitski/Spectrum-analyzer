@@ -84,3 +84,4 @@ CMakeLists.txt.user*
 # Other
 venv/
 *.wav
+*.json
