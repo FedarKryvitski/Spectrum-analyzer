@@ -1,12 +1,15 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "audioplayer.h"
-#include "audiorecorder.h"
+#include "alsa/audioplayer.h"
+#include "alsa/audiorecorder.h"
 #include "widgets/amplitudeplot.h"
 #include "widgets/frequencyplot.h"
 
 #include <QMainWindow>
+
+#include <thread>
+#include <mutex>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -28,8 +31,6 @@ class MainWindow : public QMainWindow
 
     void onDeviceChangedSlot(const QString &device);
 
-    void onDataSlot();
-
   private:
     void init();
 
@@ -40,8 +41,7 @@ class MainWindow : public QMainWindow
   private:
     Ui::MainWindow *ui;
 
-    // TODO make ALSA
-    AudioRecorder *audioRecorder_{nullptr};
+    std::unique_ptr<Alsa::AudioRecorder> audioRecorder_{nullptr};
     std::unique_ptr<Alsa::AudioPlayer> audioPlayer_{nullptr};
 
     std::unique_ptr<Plot::FrequencyPlot> frequencyPlot_{nullptr};
@@ -49,7 +49,9 @@ class MainWindow : public QMainWindow
 
     QTimer *plotTimer_;
 
-    bool isRunning_{false};
+    std::jthread workerThread_;
+    std::mutex mutex_;
+    std::atomic_bool isRunning_{false};
 };
 
 #endif // MAINWINDOW_H

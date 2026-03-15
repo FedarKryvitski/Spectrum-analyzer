@@ -1,20 +1,10 @@
-#include "audioplayer.h"
+#include "alsa/audioplayer.h"
+#include "alsa/constants.h"
 
-#include <algorithm>
 #include <iostream>
-#include <vector>
 
 namespace Alsa
 {
-
-namespace
-{
-
-constexpr size_t kChannels{1};
-constexpr size_t kSampleRate{44100};
-constexpr snd_pcm_format_t kFormat{SND_PCM_FORMAT_FLOAT};
-
-} // namespace
 
 AudioPlayer::~AudioPlayer()
 {
@@ -38,7 +28,7 @@ void AudioPlayer::start()
         return;
     }
 
-    err = snd_pcm_set_params(handle_, kFormat, SND_PCM_ACCESS_RW_INTERLEAVED, kChannels, kSampleRate, 1, 50000);
+    err = snd_pcm_set_params(handle_, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_INTERLEAVED, kChannels, kSampleRate, 1, 50000);
     if (err < 0)
     {
         std::cout << "Playback open error: " << snd_strerror(err);
@@ -58,22 +48,22 @@ void AudioPlayer::stop()
     isPlaying_ = false;
 }
 
-void AudioPlayer::playSound(std::span<const double> data)
+void AudioPlayer::write(const void* buffer, size_t size)
 {
-    std::vector<float> buffer(data.size());
-    std::ranges::transform(data, buffer.begin(), [](const auto &elem) { return static_cast<float>(elem); });
+    if (!isPlaying_)
+        return;
 
-    int err = snd_pcm_writei(handle_, buffer.data(), buffer.size() / kChannels);
+    int err = snd_pcm_writei(handle_, buffer, size / kChannels);
     if (err < 0)
     {
         if (err == -EPIPE)
         {
-            std::cerr << "buffer overflow";
+            std::cerr << "buffer overflow" << std::endl;
             snd_pcm_prepare(handle_);
         }
         else
         {
-            std::cerr << "write to audio interface failed" << snd_strerror(err);
+            std::cerr << "write to audio interface failed" << snd_strerror(err) << std::endl;
         }
     }
 }

@@ -25,6 +25,9 @@
     </property>
    </widget>
    <widget class="QPushButton" name="recordingButton">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>270</x>

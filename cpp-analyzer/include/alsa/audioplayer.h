@@ -2,16 +2,16 @@
 #define AUDIOPLAYER_H
 
 #include <alsa/asoundlib.h>
-#include <span>
 #include <string>
 
 namespace Alsa
 {
 
-class AudioPlayer
+class AudioPlayer final
 {
   public:
     AudioPlayer() noexcept = default;
+
     virtual ~AudioPlayer();
 
     void start();
@@ -20,7 +20,7 @@ class AudioPlayer
 
     void setDevice(const std::string &device);
 
-    void playSound(std::span<const double> data);
+    void write(const void* buffer, size_t size);
 
   private:
     snd_pcm_t *handle_{nullptr};
