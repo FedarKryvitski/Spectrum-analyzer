@@ -2,7 +2,6 @@
 #define AMPLITUDEPLOT_H
 
 #include "plot.h"
-#include "ringbuffer.h"
 
 namespace Plot
 {

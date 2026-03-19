@@ -4,11 +4,8 @@
 
 namespace Plugins {
 
-Gainer::Buffer Gainer::process(Buffer buffer)
+ComplexBuffer Gainer::process(ComplexBuffer buffer)
 {
-    if (buffer.size() == 0)
-        return buffer;
-
     std::ranges::transform(buffer.begin(), buffer.end(), buffer.begin(), [this](const Complex& element){
         const auto amplitude = element.real();
         const auto phase = element.imag();

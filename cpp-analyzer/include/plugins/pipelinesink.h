@@ -1,12 +1,11 @@
 #ifndef PIPELINESINK_H
 #define PIPELINESINK_H
 
-#include "plugins/types.h"
+#include "types.h"
 
-namespace Pipeline
-{
+namespace Plugins {
 
-class PipelineSink
+class PipelineSink final
 {
   public:
     PipelineSink() noexcept = default;
@@ -15,6 +14,6 @@ class PipelineSink
     Buffer read(ComplexBuffer buffer);
 };
 
-} // namespace Pipeline
+} // namespace Plugins
 
 #endif // PIPELINESINK_H

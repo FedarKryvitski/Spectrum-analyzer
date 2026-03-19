@@ -2,8 +2,11 @@
 #include "ui_mainwindow.h"
 
 #include "audioconverter.h"
+#include "plugins/pipeline.h"
 
 #include <QTimer>
+
+#include <algorithm>
 
 namespace
 {
@@ -72,6 +75,8 @@ void MainWindow::startRecording()
         return;
 
     workerThread_ = std::jthread{[this]() {
+        Plugins::Pipeline pipeline;
+
         audioRecorder_->start();
         audioPlayer_->start();
 
@@ -80,9 +85,11 @@ void MainWindow::startRecording()
         while (isRunning_)
         {
             auto data = audioRecorder_->read();
-            audioPlayer_->write(data.data(), data.size());
-
             auto convertedData = AudioConverter::toDoubleVector(data);
+            convertedData = pipeline.process(std::move(convertedData));
+            auto convertedIntData = AudioConverter::toIntVector(convertedData);
+            audioPlayer_->write(convertedIntData.data(), convertedIntData.size());
+
             {
                 std::lock_guard lock(mutex_);
                 frequencyPlot_->addData(convertedData);

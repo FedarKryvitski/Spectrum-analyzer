@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-namespace Pipeline
+namespace Plugins
 {
 
 class PipelineSource
@@ -15,6 +15,6 @@ class PipelineSource
     ComplexBuffer write(Buffer buffer);
 };
 
-} // namespace Pipeline
+} // namespace Plugins
 
 #endif // PIPELINESOURCE_H

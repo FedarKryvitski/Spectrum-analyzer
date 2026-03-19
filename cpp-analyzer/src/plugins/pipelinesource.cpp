@@ -2,18 +2,17 @@
 
 #include <algorithm>
 
-namespace Pipeline {
+namespace Plugins {
 
 ComplexBuffer PipelineSource::write(Buffer buffer)
 {
     ComplexBuffer output;
 
-    // TODO dft
-    std::ranges::transform(buffer.cbegin(), buffer.cend(), output.begin(), [](const Sample sample){
+    std::ranges::transform(buffer.cbegin(), buffer.cend(), std::back_inserter(output), [](const Sample& sample){
         return Complex{sample, 0.0};
     });
 
     return output;
 }
 
-} // namespace Pipeline
+} // namespace Plugins

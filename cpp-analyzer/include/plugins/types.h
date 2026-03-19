@@ -4,7 +4,7 @@
 #include <complex>
 #include <vector>
 
-namespace Pipeline
+namespace Plugins
 {
 
 using Sample = double;
@@ -13,6 +13,6 @@ using Complex = std::complex<Sample>;
 using Buffer = std::vector<Sample>;
 using ComplexBuffer = std::vector<Complex>;
 
-} // namespace Pipeline
+} // namespace Plugins
 
 #endif // TYPES_H

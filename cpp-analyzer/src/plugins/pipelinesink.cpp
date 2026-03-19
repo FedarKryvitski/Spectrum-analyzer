@@ -2,14 +2,14 @@
 
 #include <algorithm>
 
-namespace Pipeline {
+namespace Plugins {
 
 Buffer PipelineSink::read(ComplexBuffer buffer)
 {
     Buffer output;
 
     // TODO idft
-    std::ranges::transform(buffer, output.begin(), [](const Complex element){
+    std::ranges::transform(buffer, std::back_inserter(output), [](const Complex element){
         const auto amplitude = element.real();
         return amplitude;
     });
@@ -17,4 +17,4 @@ Buffer PipelineSink::read(ComplexBuffer buffer)
     return output;
 }
 
-} // namespace Pipeline
+} // namespace Plugins

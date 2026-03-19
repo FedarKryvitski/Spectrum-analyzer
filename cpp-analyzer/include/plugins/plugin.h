@@ -1,8 +1,7 @@
 #ifndef PLUGIN_H
 #define PLUGIN_H
 
-#include <complex>
-#include <vector>
+#include "types.h"
 
 namespace Plugins
 {
@@ -10,17 +9,19 @@ namespace Plugins
 class IPlugin
 {
   public:
-    using Sample = double;
-    using Complex = std::complex<Sample>;
-    using Buffer = std::vector<Complex>;
-
-  public:
     IPlugin() noexcept = default;
     virtual ~IPlugin() = default;
 
-    virtual Buffer process(Buffer input) = 0;
-    // virtual void setSink(IPipelineSink);
-    // virtual void setSource(IPipelineSource);
+    virtual ComplexBuffer process(ComplexBuffer input) = 0;
+
+    virtual void reset() {}
+
+    virtual void setEnabled(const bool enabled) { enabled_ = enabled; }
+
+    virtual bool isEnabled() const { return enabled_; }
+
+  protected:
+    bool enabled_{true};
 };
 
 } // namespace Plugins

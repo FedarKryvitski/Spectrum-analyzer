@@ -29,7 +29,7 @@ FrequencyPlot::FrequencyPlot(QCustomPlot* parent) noexcept
 {
     plot_ = parent;
 
-    initializeFFT();
+    init();
 
     plot_->xAxis->setRange(kMinFrequency, kMaxFrequency);
     plot_->xAxis->setScaleType(QCPAxis::stLogarithmic);
