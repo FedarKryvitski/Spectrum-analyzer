@@ -6,8 +6,8 @@ namespace {
 
 using namespace std::chrono_literals;
 
-constexpr static size_t kPlotSampleStep{ 128 };
-constexpr static size_t kPlotRangeX{ 3 * 44'100 / kPlotSampleStep };
+constexpr static size_t kPlotSampleStep{ 256 };
+constexpr static size_t kPlotRangeX{ 1024 };
 
 } // namespace
 
@@ -31,7 +31,7 @@ void AmplitudePlot::addData(Data data)
     std::vector<double> decimatedData;
     decimatedData.reserve(data.size() / kPlotSampleStep + 1);
 
-    for (size_t i = kPlotSampleStep - 1; i < data.size(); i += kPlotSampleStep) {
+    for (size_t i = 0; i < data.size(); i += kPlotSampleStep) {
         decimatedData.push_back(data[i]);
     }
 

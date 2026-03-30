@@ -11,7 +11,7 @@ constexpr size_t kBufferSize = 4096;
 constexpr int kSampleRate = 44100;
 constexpr double kMinFrequency = 20.0;
 constexpr double kMaxFrequency = 20000.0;
-constexpr size_t kMaxPoints = 800;
+constexpr size_t kMaxPoints = 256;
 constexpr double kNormFactor = 2.0 / kBufferSize;
 constexpr double kMinDB = -100.0;
 
@@ -33,7 +33,7 @@ FrequencyPlot::FrequencyPlot(QCustomPlot* parent) noexcept
 
     plot_->xAxis->setRange(kMinFrequency, kMaxFrequency);
     plot_->xAxis->setScaleType(QCPAxis::stLogarithmic);
-    plot_->yAxis->setRange(-60.0, 0.0);
+    plot_->yAxis->setRange(-80.0, 0.0);
 
     plot_->addGraph();
 }
@@ -46,8 +46,6 @@ void FrequencyPlot::addData(std::span<const double> data)
         std::shift_left(buffer_.begin(), buffer_.end(), data.size());
         std::ranges::copy(data, buffer_.end() - data.size());
     }
-
-    processData();
 }
 
 void FrequencyPlot::init()
@@ -107,7 +105,10 @@ void FrequencyPlot::processData()
 
 void FrequencyPlot::update()
 {
-    if (processedData_.empty()) return;
+    if (processedData_.empty())
+        return;
+
+    processData();
 
     QVector<double> xData;
     QVector<double> yData;

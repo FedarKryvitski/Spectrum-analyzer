@@ -23,6 +23,12 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
   public:
+    enum class InputType
+    {
+        kFile,
+        kMicrophone
+    };
+
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
@@ -30,6 +36,10 @@ class MainWindow : public QMainWindow
     void onRecordingButtonToggledSlot(const bool checked);
 
     void onDeviceChangedSlot(const QString &device);
+
+    void onInputTypeButtonSlot(const bool checked);
+
+    void onFileDialogButtonSlot();
 
   private:
     void init();
@@ -46,12 +56,19 @@ class MainWindow : public QMainWindow
 
     std::unique_ptr<Plot::FrequencyPlot> frequencyPlot_{nullptr};
     std::unique_ptr<Plot::AmplitudePlot> amplitudePlot_{nullptr};
+    std::unique_ptr<Plot::FrequencyPlot> frequencyPlot2_{nullptr};
+    std::unique_ptr<Plot::AmplitudePlot> amplitudePlot2_{nullptr};
 
     QTimer *plotTimer_;
 
     std::jthread workerThread_;
     std::mutex mutex_;
     std::atomic_bool isRunning_{false};
+
+    QString selectedFilePath_;
+    QString selectedDevice_;
+
+    InputType inputType_{InputType::kMicrophone};
 };
 
 #endif // MAINWINDOW_H

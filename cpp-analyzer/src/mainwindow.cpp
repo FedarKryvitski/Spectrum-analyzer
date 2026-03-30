@@ -6,8 +6,6 @@
 
 #include <QTimer>
 
-#include <algorithm>
-
 namespace
 {
 
@@ -26,15 +24,25 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     audioRecorder_ = std::make_unique<Alsa::AudioRecorder>();
     amplitudePlot_ = std::make_unique<Plot::AmplitudePlot>(ui->amplitudePlot);
     frequencyPlot_ = std::make_unique<Plot::FrequencyPlot>(ui->frequencyPlot);
+    amplitudePlot2_ = std::make_unique<Plot::AmplitudePlot>(ui->amplitudePlot_2);
+    frequencyPlot2_ = std::make_unique<Plot::FrequencyPlot>(ui->frequencyPlot_2);
 
     connect(ui->recordingButton, &QPushButton::toggled, this, &MainWindow::onRecordingButtonToggledSlot);
     connect(ui->deviceComboBox, &QComboBox::currentTextChanged, this, &MainWindow::onDeviceChangedSlot);
+    connect(ui->microphoneRadioButton, &QRadioButton::toggled, this, &MainWindow::onInputTypeButtonSlot);
+    connect(ui->selectFileButton, &QPushButton::clicked, this, &MainWindow::onFileDialogButtonSlot);
+
+    ui->selectFileButton->setVisible(false);
+    ui->selectedFileLabel->setVisible(false);
 
     plotTimer_ = new QTimer(this);
+
     connect(plotTimer_, &QTimer::timeout, this, [this]() {
         std::lock_guard lock(mutex_);
         amplitudePlot_->update();
         frequencyPlot_->update();
+        amplitudePlot2_->update();
+        frequencyPlot2_->update();
     });
 
     init();
@@ -53,12 +61,37 @@ void MainWindow::init()
     static const QStringList deviceNames{defaultDeviceName};
 
     ui->deviceComboBox->addItems(deviceNames);
+
+    selectedDevice_ = defaultDeviceName;
+    audioRecorder_->setDevice(selectedDevice_.toStdString());
+
+    ui->microphoneRadioButton->setChecked(true);
+
+    ui->deviceComboBox->setVisible(true);
+    ui->selectFileButton->setVisible(false);
+    ui->selectedFileLabel->setVisible(false);
+
+    ui->recordingButton->setEnabled(true);
 }
 
 void MainWindow::onRecordingButtonToggledSlot(const bool checked)
 {
     if (checked)
     {
+        if (inputType_ == InputType::kMicrophone && selectedDevice_.isEmpty())
+        {
+            QMessageBox::warning(this, "Error", "Please select input device.");
+            ui->recordingButton->setChecked(false);
+            return;
+        }
+
+        if (inputType_ == InputType::kFile && selectedFilePath_.isEmpty())
+        {
+            QMessageBox::warning(this, "Error", "Please select audio file.");
+            ui->recordingButton->setChecked(false);
+            return;
+        }
+
         startRecording();
         ui->recordingButton->setText("Stop");
     }
@@ -67,6 +100,11 @@ void MainWindow::onRecordingButtonToggledSlot(const bool checked)
         stopRecording();
         ui->recordingButton->setText("Start");
     }
+
+    ui->microphoneRadioButton->setEnabled(!checked);
+    ui->fileRadioButton->setEnabled(!checked);
+    ui->deviceComboBox->setEnabled(!checked);
+    ui->selectFileButton->setEnabled(!checked);
 }
 
 void MainWindow::startRecording()
@@ -77,28 +115,56 @@ void MainWindow::startRecording()
     workerThread_ = std::jthread{[this]() {
         Plugins::Pipeline pipeline;
 
-        audioRecorder_->start();
+        if (inputType_ == InputType::kMicrophone)
+        {
+            audioRecorder_->start();
+        }
+        else
+        {
+        }
+
         audioPlayer_->start();
 
         isRunning_ = true;
 
         while (isRunning_)
         {
-            auto data = audioRecorder_->read();
-            auto convertedData = AudioConverter::toDoubleVector(data);
-            convertedData = pipeline.process(std::move(convertedData));
-            auto convertedIntData = AudioConverter::toIntVector(convertedData);
-            audioPlayer_->write(convertedIntData.data(), convertedIntData.size());
+            Alsa::Buffer data;
 
+            if (inputType_ == InputType::kMicrophone)
+            {
+                data = audioRecorder_->read();
+            }
+            else
+            {
+                break;
+            }
+
+            if (data.empty())
+                continue;
+
+            auto inputData = AudioConverter::toDoubleVector(data);
+            auto outputData = pipeline.process(inputData);
+            auto outputIntData = AudioConverter::toIntVector(outputData);
+
+            audioPlayer_->write(outputIntData.data(), outputIntData.size());
             {
                 std::lock_guard lock(mutex_);
-                frequencyPlot_->addData(convertedData);
-                amplitudePlot_->addData(convertedData);
+                frequencyPlot_->addData(inputData);
+                amplitudePlot_->addData(inputData);
+                frequencyPlot2_->addData(outputData);
+                amplitudePlot2_->addData(outputData);
             }
         }
 
-        audioRecorder_->stop();
+        if (inputType_ == InputType::kMicrophone)
+        {
+            audioRecorder_->stop();
+        }
+
         audioPlayer_->stop();
+
+        isRunning_ = false;
     }};
 
     plotTimer_->start(kPlotUpdateInterval);
@@ -120,7 +186,48 @@ void MainWindow::stopRecording()
 
 void MainWindow::onDeviceChangedSlot(const QString &device)
 {
+    selectedDevice_ = device;
     audioRecorder_->setDevice(device.toStdString());
 
-    ui->recordingButton->setEnabled(true);
+    if (inputType_ == InputType::kMicrophone)
+    {
+        ui->recordingButton->setEnabled(!selectedDevice_.isEmpty());
+    }
+}
+
+void MainWindow::onInputTypeButtonSlot(const bool checked)
+{
+    inputType_ = checked ? InputType::kMicrophone : InputType::kFile;
+
+    ui->selectFileButton->setVisible(!checked);
+    ui->selectedFileLabel->setVisible(!checked);
+    ui->deviceComboBox->setVisible(checked);
+
+    if (inputType_ == InputType::kMicrophone)
+    {
+        ui->recordingButton->setEnabled(!selectedDevice_.isEmpty());
+    }
+    else
+    {
+        ui->recordingButton->setEnabled(!selectedFilePath_.isEmpty());
+    }
+}
+
+void MainWindow::onFileDialogButtonSlot()
+{
+    QString filePath = QFileDialog::getOpenFileName(this, "Select audio file", "",
+                                                    "Audio Files (*.wav *.mp3 *.flac *.ogg);;All Files (*.*)");
+
+    if (filePath.isEmpty())
+        return;
+
+    selectedFilePath_ = filePath;
+
+    QFileInfo fileInfo(filePath);
+    ui->selectedFileLabel->setText(fileInfo.fileName());
+
+    if (inputType_ == InputType::kFile)
+    {
+        ui->recordingButton->setEnabled(true);
+    }
 }
