@@ -6,8 +6,22 @@ namespace {
 
 using namespace std::chrono_literals;
 
-constexpr static size_t kPlotSampleStep{ 256 };
+constexpr static size_t kPlotDecimationStep{ 32 };
 constexpr static size_t kPlotRangeX{ 1024 };
+
+template<typename T>
+std::vector<T> decimate(std::span<const T>& source, size_t decimationStep)
+{
+    std::vector<T> result;
+    result.reserve(source.size() / decimationStep + 1);
+
+    for (size_t i = 0; i < source.size(); i += decimationStep)
+    {
+        result.push_back(source[i]);
+    }
+
+    return result;
+}
 
 } // namespace
 
@@ -22,23 +36,23 @@ AmplitudePlot::AmplitudePlot(QCustomPlot* parent) noexcept
     plot_->yAxis->setRange(-1, 1);
     plot_->addGraph();
 
+    plot_->setOpenGl(true);
+    plot_->setNoAntialiasingOnDrag(true);
+    plot_->setInteractions(QCP::iNone);
+    plot_->graph(0)->setLineStyle(QCPGraph::lsLine);
+    plot_->graph(0)->setAntialiased(false);
+
     std::iota(axisX_.begin(), axisX_.end(), 0);
     std::fill(axisY_.begin(), axisY_.end(), 0);
 }
 
-void AmplitudePlot::addData(Data data)
+void AmplitudePlot::addData(Data inputData)
 {
-    std::vector<double> decimatedData;
-    decimatedData.reserve(data.size() / kPlotSampleStep + 1);
-
-    for (size_t i = 0; i < data.size(); i += kPlotSampleStep) {
-        decimatedData.push_back(data[i]);
-    }
+    auto decimatedData = decimate(inputData, kPlotDecimationStep);
+    if (decimatedData.empty())
+        return;
 
     const size_t newDataSize = decimatedData.size();
-
-    if (newDataSize == 0)
-        return;
 
     if (newDataSize >= kPlotRangeX)
     {
@@ -56,7 +70,7 @@ void AmplitudePlot::addData(Data data)
 
 void AmplitudePlot::update()
 {
-    plot_->graph(0)->setData(axisX_, axisY_);
+    plot_->graph(0)->setData(axisX_, axisY_, true);
     plot_->replot();
 }
 

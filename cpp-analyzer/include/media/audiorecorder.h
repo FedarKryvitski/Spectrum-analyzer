@@ -2,17 +2,16 @@
 #define AUDIORECORDER_H
 
 #include <alsa/asoundlib.h>
-#include "alsa/constants.h"
+#include "media/constants.h"
 
 #include <string>
 
-namespace Alsa {
+namespace Media {
 
 class AudioRecorder final
 {
   public:
     AudioRecorder() noexcept = default;
-
     virtual ~AudioRecorder();
 
     void start();
@@ -28,6 +27,6 @@ class AudioRecorder final
     bool isRecording_{false};
 };
 
-} // namespace Alsa
+} // namespace Media
 
 #endif // AUDIORECORDER_H

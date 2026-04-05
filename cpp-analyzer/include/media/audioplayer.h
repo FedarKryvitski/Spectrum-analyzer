@@ -4,7 +4,7 @@
 #include <alsa/asoundlib.h>
 #include <string>
 
-namespace Alsa
+namespace Media
 {
 
 class AudioPlayer final
@@ -28,6 +28,6 @@ class AudioPlayer final
     bool isPlaying_{false};
 };
 
-} // namespace Alsa
+} // namespace Media
 
 #endif // AUDIOPLAYER_H

@@ -5,7 +5,7 @@
 
 #include <QDebug>
 
-namespace Alsa
+namespace Media
 {
 namespace Utils
 {
@@ -50,4 +50,4 @@ std::vector<DeviceInfo> getAudioOutputDevices()
 }
 
 } // namespace Utils
-} // namespace Alsa
+} // namespace Media

@@ -20,8 +20,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
     ui->setupUi(this);
 
-    audioPlayer_ = std::make_unique<Alsa::AudioPlayer>();
-    audioRecorder_ = std::make_unique<Alsa::AudioRecorder>();
+    audioPlayer_ = std::make_unique<Media::AudioPlayer>();
+    audioRecorder_ = std::make_unique<Media::AudioRecorder>();
+
     amplitudePlot_ = std::make_unique<Plot::AmplitudePlot>(ui->amplitudePlot);
     frequencyPlot_ = std::make_unique<Plot::FrequencyPlot>(ui->frequencyPlot);
     amplitudePlot2_ = std::make_unique<Plot::AmplitudePlot>(ui->amplitudePlot_2);
@@ -40,9 +41,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(plotTimer_, &QTimer::timeout, this, [this]() {
         std::lock_guard lock(mutex_);
         amplitudePlot_->update();
-        frequencyPlot_->update();
         amplitudePlot2_->update();
-        frequencyPlot2_->update();
+        // frequencyPlot_->update();
+        // frequencyPlot2_->update();
     });
 
     init();
@@ -129,7 +130,7 @@ void MainWindow::startRecording()
 
         while (isRunning_)
         {
-            Alsa::Buffer data;
+            Media::Buffer data;
 
             if (inputType_ == InputType::kMicrophone)
             {
@@ -144,16 +145,16 @@ void MainWindow::startRecording()
                 continue;
 
             auto inputData = AudioConverter::toDoubleVector(data);
-            auto outputData = pipeline.process(inputData);
-            auto outputIntData = AudioConverter::toIntVector(outputData);
+            // auto outputData = pipeline.process(inputData);
+            // auto outputIntData = AudioConverter::toIntVector(outputData);
 
-            audioPlayer_->write(outputIntData.data(), outputIntData.size());
+            // audioPlayer_->write(outputIntData.data(), outputIntData.size());
             {
                 std::lock_guard lock(mutex_);
-                frequencyPlot_->addData(inputData);
                 amplitudePlot_->addData(inputData);
-                frequencyPlot2_->addData(outputData);
-                amplitudePlot2_->addData(outputData);
+                amplitudePlot2_->addData(inputData);
+                // frequencyPlot_->addData(inputData);
+                // frequencyPlot2_->addData(outputData);
             }
         }
 

@@ -1,9 +1,9 @@
-#include "alsa/audioplayer.h"
-#include "alsa/constants.h"
+#include "media/audioplayer.h"
+#include "media/constants.h"
 
 #include <iostream>
 
-namespace Alsa
+namespace Media
 {
 
 AudioPlayer::~AudioPlayer()
@@ -68,4 +68,4 @@ void AudioPlayer::write(const void* buffer, size_t size)
     }
 }
 
-} // namespace Alsa
+} // namespace Media

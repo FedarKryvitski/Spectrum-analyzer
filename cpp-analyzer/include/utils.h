@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace Alsa
+namespace Media
 {
 namespace Utils
 {
@@ -20,6 +20,6 @@ std::vector<DeviceInfo> getAudioInputDevices();
 std::vector<DeviceInfo> getAudioOutputDevices();
 
 } // namespace Utils
-} // namespace Alsa
+} // namespace Media
 
 #endif // UTILS_H

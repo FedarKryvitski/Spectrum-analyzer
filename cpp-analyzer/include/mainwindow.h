@@ -1,8 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "alsa/audioplayer.h"
-#include "alsa/audiorecorder.h"
+#include "media/audioplayer.h"
+#include "media/audiorecorder.h"
 #include "widgets/amplitudeplot.h"
 #include "widgets/frequencyplot.h"
 
@@ -51,8 +51,8 @@ class MainWindow : public QMainWindow
   private:
     Ui::MainWindow *ui;
 
-    std::unique_ptr<Alsa::AudioRecorder> audioRecorder_{nullptr};
-    std::unique_ptr<Alsa::AudioPlayer> audioPlayer_{nullptr};
+    std::unique_ptr<Media::AudioRecorder> audioRecorder_{nullptr};
+    std::unique_ptr<Media::AudioPlayer> audioPlayer_{nullptr};
 
     std::unique_ptr<Plot::FrequencyPlot> frequencyPlot_{nullptr};
     std::unique_ptr<Plot::AmplitudePlot> amplitudePlot_{nullptr};

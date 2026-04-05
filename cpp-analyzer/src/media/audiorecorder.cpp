@@ -1,8 +1,8 @@
-#include "alsa/audiorecorder.h"
+#include "media/audiorecorder.h"
 
 #include <iostream>
 
-namespace Alsa {
+namespace Media {
 
 namespace {
 
@@ -59,4 +59,4 @@ Buffer AudioRecorder::read()
     return data;
 }
 
-} // namespace Alsa
+} // namespace Media
