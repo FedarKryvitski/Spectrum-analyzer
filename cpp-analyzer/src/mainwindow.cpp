@@ -21,7 +21,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
 
     audioPlayer_ = std::make_unique<Media::AudioPlayer>();
-    audioRecorder_ = std::make_unique<Media::AudioRecorder>();
+    audioDeviceRecorder_ = std::make_unique<Media::AudioDeviceSource>();
+    audioFileRecorder_ = std::make_unique<Media::AudioFileSource>();
 
     amplitudePlot_ = std::make_unique<Plot::AmplitudePlot>(ui->amplitudePlot);
     frequencyPlot_ = std::make_unique<Plot::FrequencyPlot>(ui->frequencyPlot);
@@ -42,8 +43,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         std::lock_guard lock(mutex_);
         amplitudePlot_->update();
         amplitudePlot2_->update();
-        // frequencyPlot_->update();
-        // frequencyPlot2_->update();
+        frequencyPlot_->update();
+        frequencyPlot2_->update();
     });
 
     init();
@@ -64,7 +65,6 @@ void MainWindow::init()
     ui->deviceComboBox->addItems(deviceNames);
 
     selectedDevice_ = defaultDeviceName;
-    audioRecorder_->setDevice(selectedDevice_.toStdString());
 
     ui->microphoneRadioButton->setChecked(true);
 
@@ -118,10 +118,11 @@ void MainWindow::startRecording()
 
         if (inputType_ == InputType::kMicrophone)
         {
-            audioRecorder_->start();
+            audioDeviceRecorder_->open(selectedDevice_.toStdString());
         }
         else
         {
+            audioFileRecorder_->open(selectedFilePath_.toStdString());
         }
 
         audioPlayer_->start();
@@ -134,11 +135,11 @@ void MainWindow::startRecording()
 
             if (inputType_ == InputType::kMicrophone)
             {
-                data = audioRecorder_->read();
+                data = audioDeviceRecorder_->read();
             }
             else
             {
-                break;
+                data = audioFileRecorder_->read();
             }
 
             if (data.empty())
@@ -153,14 +154,18 @@ void MainWindow::startRecording()
                 std::lock_guard lock(mutex_);
                 amplitudePlot_->addData(inputData);
                 amplitudePlot2_->addData(inputData);
-                // frequencyPlot_->addData(inputData);
-                // frequencyPlot2_->addData(outputData);
+                frequencyPlot_->addData(inputData);
+                frequencyPlot2_->addData(inputData);
             }
         }
 
         if (inputType_ == InputType::kMicrophone)
         {
-            audioRecorder_->stop();
+            audioDeviceRecorder_->close();
+        }
+        else
+        {
+            audioFileRecorder_->close();
         }
 
         audioPlayer_->stop();
@@ -188,8 +193,6 @@ void MainWindow::stopRecording()
 void MainWindow::onDeviceChangedSlot(const QString &device)
 {
     selectedDevice_ = device;
-    audioRecorder_->setDevice(device.toStdString());
-
     if (inputType_ == InputType::kMicrophone)
     {
         ui->recordingButton->setEnabled(!selectedDevice_.isEmpty());

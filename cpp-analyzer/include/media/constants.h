@@ -11,7 +11,7 @@ using Buffer = std::vector<Sample>;
 
 constexpr int kChannels = 1;
 constexpr int kSampleRate = 44100;
-constexpr int kBufferSize = 128;
+constexpr int kBufferSize = 512;
 
 } // namespace Media
 

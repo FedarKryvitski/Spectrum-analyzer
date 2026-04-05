@@ -1,8 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "media/audiodevicesource.h"
+#include "media/audiofilesource.h"
 #include "media/audioplayer.h"
-#include "media/audiorecorder.h"
+
 #include "widgets/amplitudeplot.h"
 #include "widgets/frequencyplot.h"
 
@@ -51,7 +53,8 @@ class MainWindow : public QMainWindow
   private:
     Ui::MainWindow *ui;
 
-    std::unique_ptr<Media::AudioRecorder> audioRecorder_{nullptr};
+    std::unique_ptr<Media::AudioDeviceSource> audioDeviceRecorder_{nullptr};
+    std::unique_ptr<Media::AudioFileSource> audioFileRecorder_{nullptr};
     std::unique_ptr<Media::AudioPlayer> audioPlayer_{nullptr};
 
     std::unique_ptr<Plot::FrequencyPlot> frequencyPlot_{nullptr};
