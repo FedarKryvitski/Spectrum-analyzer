@@ -62,6 +62,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+set(FFMPEG_LIBS
+    avcodec
+    avformat
+    avutil
+    swresample
+)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Multimedia
@@ -69,6 +76,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     ALSA::ALSA
     fft::fft
     QCustomPlot
+    ${FFMPEG_LIBS}
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

@@ -100,6 +100,16 @@ void MainWindow::onRecordingButtonToggledSlot(const bool checked)
     {
         stopRecording();
         ui->recordingButton->setText("Start");
+
+        std::lock_guard lock(mutex_);
+        amplitudePlot_->clear();
+        amplitudePlot2_->clear();
+        frequencyPlot_->clear();
+        frequencyPlot2_->clear();
+        amplitudePlot_->update();
+        amplitudePlot2_->update();
+        frequencyPlot_->update();
+        frequencyPlot2_->update();
     }
 
     ui->microphoneRadioButton->setEnabled(!checked);
@@ -149,7 +159,7 @@ void MainWindow::startRecording()
             // auto outputData = pipeline.process(inputData);
             // auto outputIntData = AudioConverter::toIntVector(outputData);
 
-            // audioPlayer_->write(outputIntData.data(), outputIntData.size());
+            audioPlayer_->write(data.data(), data.size());
             {
                 std::lock_guard lock(mutex_);
                 amplitudePlot_->addData(inputData);
