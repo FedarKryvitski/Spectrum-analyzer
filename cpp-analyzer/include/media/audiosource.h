@@ -1,5 +1,4 @@
-#ifndef AUDIOSOURCE_H
-#define AUDIOSOURCE_H
+#pragma once
 
 #include "iaudiosource.h"
 
@@ -19,5 +18,3 @@ class AudioSource : public IAudioSource
 };
 
 } // namespace Media
-
-#endif // AUDIOSOURCE_H

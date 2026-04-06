@@ -1,5 +1,4 @@
-#ifndef PIPELINESOURCE_H
-#define PIPELINESOURCE_H
+#pragma once
 
 #include "types.h"
 
@@ -16,5 +15,3 @@ class PipelineSource
 };
 
 } // namespace Plugins
-
-#endif // PIPELINESOURCE_H

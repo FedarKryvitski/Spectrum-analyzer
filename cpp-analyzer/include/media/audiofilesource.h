@@ -1,5 +1,4 @@
-#ifndef AUDIOFILESOURCE_H
-#define AUDIOFILESOURCE_H
+#pragma once
 
 #include "media/audiosource.h"
 
@@ -38,5 +37,3 @@ class AudioFileSource final : public AudioSource
 };
 
 } // namespace Media
-
-#endif // AUDIOFILESOURCE_H

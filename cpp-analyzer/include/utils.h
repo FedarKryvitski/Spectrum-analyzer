@@ -1,5 +1,4 @@
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -21,5 +20,3 @@ std::vector<DeviceInfo> getAudioOutputDevices();
 
 } // namespace Utils
 } // namespace Media
-
-#endif // UTILS_H

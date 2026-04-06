@@ -1,5 +1,4 @@
-#ifndef PLOT_H
-#define PLOT_H
+#pragma once
 
 #include <qcustomplot.h>
 #include <span>
@@ -25,5 +24,3 @@ class IPlot
 };
 
 } // namespace Plot
-
-#endif // PLOT_H

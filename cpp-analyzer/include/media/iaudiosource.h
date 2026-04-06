@@ -1,5 +1,4 @@
-#ifndef IAUDIORECORDER_H
-#define IAUDIORECORDER_H
+#pragma once
 
 #include "media/constants.h"
 
@@ -23,5 +22,3 @@ class IAudioSource
 };
 
 } // namespace Media
-
-#endif // IAUDIORECORDER_H

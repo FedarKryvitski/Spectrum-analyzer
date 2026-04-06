@@ -1,5 +1,4 @@
-#ifndef AMPLITUDEPLOT_H
-#define AMPLITUDEPLOT_H
+#pragma once
 
 #include "plot.h"
 
@@ -20,5 +19,3 @@ class AmplitudePlot final : public IPlot
 };
 
 } // namespace Plot
-
-#endif // AMPLITUDEPLOT_H

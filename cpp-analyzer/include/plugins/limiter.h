@@ -1,5 +1,4 @@
-#ifndef LIMITER_H
-#define LIMITER_H
+#pragma once
 
 #include "plugin.h"
 #include "types.h"
@@ -25,5 +24,3 @@ class Limiter : public IPlugin
 };
 
 } // namespace Plugins
-
-#endif // LIMITER_H

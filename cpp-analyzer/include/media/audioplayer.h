@@ -1,5 +1,4 @@
-#ifndef AUDIOPLAYER_H
-#define AUDIOPLAYER_H
+#pragma once
 
 #include <alsa/asoundlib.h>
 #include <string>
@@ -29,5 +28,3 @@ class AudioPlayer final
 };
 
 } // namespace Media
-
-#endif // AUDIOPLAYER_H

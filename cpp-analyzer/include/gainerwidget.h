@@ -1,5 +1,4 @@
-#ifndef GAINERWIDGET_H
-#define GAINERWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -19,5 +18,3 @@ class GainerWidget : public QWidget
   private:
     Ui::GainerWidget *ui;
 };
-
-#endif // GAINERWIDGET_H

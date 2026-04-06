@@ -1,5 +1,4 @@
-#ifndef PIPELINESINK_H
-#define PIPELINESINK_H
+#pragma once
 
 #include "types.h"
 
@@ -15,5 +14,3 @@ class PipelineSink final
 };
 
 } // namespace Plugins
-
-#endif // PIPELINESINK_H

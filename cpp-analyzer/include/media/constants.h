@@ -1,5 +1,4 @@
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#pragma once
 
 #include <cstdint>
 #include <vector>
@@ -14,5 +13,3 @@ constexpr int kSampleRate = 44100;
 constexpr int kBufferSize = 512;
 
 } // namespace Media
-
-#endif // CONSTANTS_H

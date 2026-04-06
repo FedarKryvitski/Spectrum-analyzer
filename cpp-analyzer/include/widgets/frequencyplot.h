@@ -1,5 +1,4 @@
-#ifndef FREQUENCYPLOT_H
-#define FREQUENCYPLOT_H
+#pragma once
 
 #include "plot.h"
 
@@ -29,5 +28,3 @@ class FrequencyPlot final : public IPlot
 };
 
 } // namespace Plot
-
-#endif // FREQUENCYPLOT_H

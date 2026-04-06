@@ -1,5 +1,4 @@
-#ifndef PLUGIN_H
-#define PLUGIN_H
+#pragma once
 
 #include "types.h"
 
@@ -25,5 +24,3 @@ class IPlugin
 };
 
 } // namespace Plugins
-
-#endif // PLUGIN_H

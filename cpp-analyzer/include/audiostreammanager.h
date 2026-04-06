@@ -1,10 +1,7 @@
-#ifndef AUDIOSTREAMMANAGER_H
-#define AUDIOSTREAMMANAGER_H
+#pragma once
 
 class AudioStreamManager
 {
   public:
     AudioStreamManager();
 };
-
-#endif // AUDIOSTREAMMANAGER_H

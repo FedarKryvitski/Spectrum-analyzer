@@ -1,5 +1,4 @@
-#ifndef GAINER_H
-#define GAINER_H
+#pragma once
 
 #include "plugin.h"
 #include "types.h"
@@ -25,5 +24,3 @@ class Gainer : public IPlugin
 };
 
 } // namespace Plugins
-
-#endif // GAINER_H

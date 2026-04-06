@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include "media/audiodevicesource.h"
 #include "media/audiofilesource.h"
@@ -78,5 +77,3 @@ class MainWindow : public QMainWindow
 
     InputType inputType_{InputType::kMicrophone};
 };
-
-#endif // MAINWINDOW_H

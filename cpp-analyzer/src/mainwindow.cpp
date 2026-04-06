@@ -255,4 +255,3 @@ void MainWindow::onVolumeLevelChangedSlot(const double volume)
 {
     ui->progressBar->setValue(static_cast<int>(volume));
 }
-

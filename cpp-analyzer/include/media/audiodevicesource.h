@@ -1,5 +1,4 @@
-#ifndef AUDIORECORDER_H
-#define AUDIORECORDER_H
+#pragma once
 
 #include "media/audiosource.h"
 
@@ -24,5 +23,3 @@ class AudioDeviceSource final : public AudioSource
 };
 
 } // namespace Media
-
-#endif // AUDIORECORDER_H

@@ -1,5 +1,4 @@
-#ifndef TYPES_H
-#define TYPES_H
+#pragma once
 
 #include <complex>
 #include <vector>
@@ -14,5 +13,3 @@ using Buffer = std::vector<Sample>;
 using ComplexBuffer = std::vector<Complex>;
 
 } // namespace Plugins
-
-#endif // TYPES_H

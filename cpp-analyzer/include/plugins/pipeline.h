@@ -1,5 +1,4 @@
-#ifndef PIPELINE_H
-#define PIPELINE_H
+#pragma once
 
 #include "plugin.h"
 #include "pipelinesink.h"
@@ -29,5 +28,3 @@ class Pipeline {
 };
 
 } // namespace Plugins
-
-#endif
