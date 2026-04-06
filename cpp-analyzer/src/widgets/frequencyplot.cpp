@@ -36,6 +36,12 @@ FrequencyPlot::FrequencyPlot(QCustomPlot* parent) noexcept
     plot_->yAxis->setRange(-80.0, 0.0);
 
     plot_->addGraph();
+
+    plot_->setOpenGl(true);
+    plot_->setNoAntialiasingOnDrag(true);
+    plot_->setInteractions(QCP::iNone);
+    plot_->graph(0)->setLineStyle(QCPGraph::lsLine);
+    plot_->graph(0)->setAntialiased(false);
 }
 
 void FrequencyPlot::addData(std::span<const double> data)
@@ -129,7 +135,7 @@ void FrequencyPlot::update()
     }
 
     plot_->graph(0)->setData(xData, yData);
-    plot_->replot();
+    plot_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
 void FrequencyPlot::clear()

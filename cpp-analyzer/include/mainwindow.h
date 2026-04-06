@@ -34,6 +34,9 @@ class MainWindow : public QMainWindow
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+  signals:
+    void volumeLevelChangedSignal(const double volume);
+
   private slots:
     void onRecordingButtonToggledSlot(const bool checked);
 
@@ -42,6 +45,8 @@ class MainWindow : public QMainWindow
     void onInputTypeButtonSlot(const bool checked);
 
     void onFileDialogButtonSlot();
+
+    void onVolumeLevelChangedSlot(const double volume);
 
   private:
     void init();

@@ -71,7 +71,7 @@ void AmplitudePlot::addData(Data inputData)
 void AmplitudePlot::update()
 {
     plot_->graph(0)->setData(axisX_, axisY_, true);
-    plot_->replot();
+    plot_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
 void AmplitudePlot::clear()

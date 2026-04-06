@@ -34,6 +34,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->microphoneRadioButton, &QRadioButton::toggled, this, &MainWindow::onInputTypeButtonSlot);
     connect(ui->selectFileButton, &QPushButton::clicked, this, &MainWindow::onFileDialogButtonSlot);
 
+    connect(this, &MainWindow::volumeLevelChangedSignal, this, &MainWindow::onVolumeLevelChangedSlot);
+
     ui->selectFileButton->setVisible(false);
     ui->selectedFileLabel->setVisible(false);
 
@@ -156,16 +158,19 @@ void MainWindow::startRecording()
                 continue;
 
             auto inputData = AudioConverter::toDoubleVector(data);
-            // auto outputData = pipeline.process(inputData);
-            // auto outputIntData = AudioConverter::toIntVector(outputData);
+            auto outputData = pipeline.process(inputData);
+            auto outputIntData = AudioConverter::toIntVector(outputData);
 
-            audioPlayer_->write(data.data(), data.size());
+            double volume = pipeline.getVolume();
+            emit volumeLevelChangedSignal(volume);
+
+            audioPlayer_->write(outputIntData.data(), outputIntData.size());
             {
                 std::lock_guard lock(mutex_);
                 amplitudePlot_->addData(inputData);
-                amplitudePlot2_->addData(inputData);
+                amplitudePlot2_->addData(outputData);
                 frequencyPlot_->addData(inputData);
-                frequencyPlot2_->addData(inputData);
+                frequencyPlot2_->addData(outputData);
             }
         }
 
@@ -245,3 +250,9 @@ void MainWindow::onFileDialogButtonSlot()
         ui->recordingButton->setEnabled(true);
     }
 }
+
+void MainWindow::onVolumeLevelChangedSlot(const double volume)
+{
+    ui->progressBar->setValue(static_cast<int>(volume));
+}
+

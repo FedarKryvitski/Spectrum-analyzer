@@ -1,18 +1,37 @@
 #include "plugins/pipelinesink.h"
 
-#include <algorithm>
+#include <fft/fft.h>
 
 namespace Plugins {
 
 Buffer PipelineSink::read(ComplexBuffer buffer)
 {
-    Buffer output;
+    if (buffer.empty())
+        return {};
 
-    // TODO idft
-    std::ranges::transform(buffer, std::back_inserter(output), [](const Complex element){
-        const auto amplitude = element.real();
-        return amplitude;
-    });
+    const int n = (buffer.size() - 1) * 2;
+
+    std::vector<double> a(n, 0.0);
+
+    a[0] = buffer[0].real();
+    a[1] = buffer.back().real();
+
+    for (int k = 1; k < n / 2; ++k)
+    {
+        a[2 * k]     = buffer[k].real();
+        a[2 * k + 1] = buffer[k].imag();
+    }
+
+    std::vector<int> ip(2 + static_cast<int>(std::sqrt(n)));
+    std::vector<double> w(n / 2);
+    ip[0] = 0;
+
+    rdft(n, -1, a.data(), ip.data(), w.data());
+
+    for (auto& v : a)
+        v /= n;
+
+    Buffer output(a.begin(), a.end());
 
     return output;
 }
