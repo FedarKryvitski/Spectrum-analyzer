@@ -1,16 +1,10 @@
 #pragma once
 
-#include "media/audiodevicesource.h"
-#include "media/audiofilesource.h"
-#include "media/audioplayer.h"
-
-#include "widgets/amplitudeplot.h"
-#include "widgets/frequencyplot.h"
+#include "audiosessionconfig.h"
+#include "audiostreammanager.h"
+#include "plotcontroller.h"
 
 #include <QMainWindow>
-
-#include <mutex>
-#include <thread>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -24,56 +18,39 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
   public:
-    enum class InputType
-    {
-        kFile,
-        kMicrophone
-    };
-
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-  signals:
-    void volumeLevelChangedSignal(const double volume);
-
   private slots:
-    void onRecordingButtonToggledSlot(const bool checked);
-
+    void onRecordingButtonToggledSlot(bool checked);
     void onDeviceChangedSlot(const QString &device);
-
-    void onInputTypeButtonSlot(const bool checked);
-
+    void onInputTypeButtonSlot(bool checked);
     void onFileDialogButtonSlot();
 
-    void onVolumeLevelChangedSlot(const double volume);
+    void onVolumeChangedSlot(double volume);
+    void onStreamFinishedSlot();
+
+    void onOpenListPageSlot();
+    void onBackToAnalyzerSlot();
+    void onAddListItemSlot();
+    void onRemoveListItemSlot();
 
   private:
     void init();
+    void connectUi();
+    void connectAudio();
 
-    void startRecording();
-
-    void stopRecording();
+    AudioSessionConfig buildSessionConfig() const;
+    bool validateConfig(const AudioSessionConfig &config);
+    void updateControlsState(bool isRecording);
 
   private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow *ui{nullptr};
 
-    std::unique_ptr<Media::AudioDeviceSource> audioDeviceRecorder_{nullptr};
-    std::unique_ptr<Media::AudioFileSource> audioFileRecorder_{nullptr};
-    std::unique_ptr<Media::AudioPlayer> audioPlayer_{nullptr};
-
-    std::unique_ptr<Plot::FrequencyPlot> frequencyPlot_{nullptr};
-    std::unique_ptr<Plot::AmplitudePlot> amplitudePlot_{nullptr};
-    std::unique_ptr<Plot::FrequencyPlot> frequencyPlot2_{nullptr};
-    std::unique_ptr<Plot::AmplitudePlot> amplitudePlot2_{nullptr};
-
-    QTimer *plotTimer_;
-
-    std::jthread workerThread_;
-    std::mutex mutex_;
-    std::atomic_bool isRunning_{false};
+    std::unique_ptr<AudioStreamManager> audioStreamManager_{nullptr};
+    std::unique_ptr<Plot::PlotController> plotController_{nullptr};
 
     QString selectedFilePath_;
     QString selectedDevice_;
-
-    InputType inputType_{InputType::kMicrophone};
+    InputType inputType_{InputType::Microphone};
 };

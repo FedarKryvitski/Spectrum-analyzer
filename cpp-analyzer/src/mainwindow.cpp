@@ -1,72 +1,88 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "audioconverter.h"
-#include "plugins/pipeline.h"
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QMessageBox>
 
-#include <QTimer>
+#include <QAbstractItemView>
+#include <QInputDialog>
+#include <QListWidgetItem>
 
 namespace
 {
-
-using namespace std::chrono_literals;
-
-constexpr auto kFPS = 60;
-constexpr auto kPlotUpdateInterval = 1s / kFPS;
-
-} // namespace
+constexpr auto kDefaultDeviceName = "default";
+}
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    audioPlayer_ = std::make_unique<Media::AudioPlayer>();
-    audioDeviceRecorder_ = std::make_unique<Media::AudioDeviceSource>();
-    audioFileRecorder_ = std::make_unique<Media::AudioFileSource>();
+    audioStreamManager_ = std::make_unique<AudioStreamManager>(this);
 
-    amplitudePlot_ = std::make_unique<Plot::AmplitudePlot>(ui->amplitudePlot);
-    frequencyPlot_ = std::make_unique<Plot::FrequencyPlot>(ui->frequencyPlot);
-    amplitudePlot2_ = std::make_unique<Plot::AmplitudePlot>(ui->amplitudePlot_2);
-    frequencyPlot2_ = std::make_unique<Plot::FrequencyPlot>(ui->frequencyPlot_2);
+    plotController_ = std::make_unique<Plot::PlotController>(ui->amplitudePlot, ui->frequencyPlot, ui->amplitudePlot_2,
+                                                             ui->frequencyPlot_2, this);
 
-    connect(ui->recordingButton, &QPushButton::toggled, this, &MainWindow::onRecordingButtonToggledSlot);
-    connect(ui->deviceComboBox, &QComboBox::currentTextChanged, this, &MainWindow::onDeviceChangedSlot);
-    connect(ui->microphoneRadioButton, &QRadioButton::toggled, this, &MainWindow::onInputTypeButtonSlot);
-    connect(ui->selectFileButton, &QPushButton::clicked, this, &MainWindow::onFileDialogButtonSlot);
-
-    connect(this, &MainWindow::volumeLevelChangedSignal, this, &MainWindow::onVolumeLevelChangedSlot);
-
-    ui->selectFileButton->setVisible(false);
-    ui->selectedFileLabel->setVisible(false);
-
-    plotTimer_ = new QTimer(this);
-
-    connect(plotTimer_, &QTimer::timeout, this, [this]() {
-        std::lock_guard lock(mutex_);
-        amplitudePlot_->update();
-        amplitudePlot2_->update();
-        frequencyPlot_->update();
-        frequencyPlot2_->update();
-    });
-
+    connectUi();
+    connectAudio();
     init();
 }
 
 MainWindow::~MainWindow()
 {
-    stopRecording();
+    if (audioStreamManager_)
+        audioStreamManager_->stop();
 
     delete ui;
 }
 
+void MainWindow::connectUi()
+{
+    connect(ui->recordingButton, &QPushButton::toggled, this, &MainWindow::onRecordingButtonToggledSlot);
+
+    connect(ui->deviceComboBox, &QComboBox::currentTextChanged, this, &MainWindow::onDeviceChangedSlot);
+
+    connect(ui->microphoneRadioButton, &QRadioButton::toggled, this, &MainWindow::onInputTypeButtonSlot);
+
+    connect(ui->selectFileButton, &QPushButton::clicked, this, &MainWindow::onFileDialogButtonSlot);
+
+    connect(ui->openListPageButton, &QPushButton::clicked, this, &MainWindow::onOpenListPageSlot);
+
+    connect(ui->backToAnalyzerButton, &QPushButton::clicked, this, &MainWindow::onBackToAnalyzerSlot);
+
+    connect(ui->addItemButton, &QPushButton::clicked, this, &MainWindow::onAddListItemSlot);
+
+    connect(ui->removeItemButton, &QPushButton::clicked, this, &MainWindow::onRemoveListItemSlot);
+}
+
+void MainWindow::connectAudio()
+{
+    connect(audioStreamManager_.get(), &AudioStreamManager::volumeChanged, this, &MainWindow::onVolumeChangedSlot);
+
+    connect(audioStreamManager_.get(), &AudioStreamManager::frameReady, plotController_.get(),
+            &Plot::PlotController::onFrameReady, Qt::QueuedConnection);
+
+    connect(audioStreamManager_.get(), &AudioStreamManager::errorOccurred, this, [this](const QString &message) {
+        QMessageBox::warning(this, "Error", message);
+
+        {
+            QSignalBlocker blocker(ui->recordingButton);
+            ui->recordingButton->setChecked(false);
+        }
+
+        ui->recordingButton->setText("Start");
+        updateControlsState(false);
+        plotController_->stop();
+    });
+
+    connect(audioStreamManager_.get(), &AudioStreamManager::finished, this, &MainWindow::onStreamFinishedSlot,
+            Qt::QueuedConnection);
+}
+
 void MainWindow::init()
 {
-    static const QString defaultDeviceName{"default"};
-    static const QStringList deviceNames{defaultDeviceName};
-
-    ui->deviceComboBox->addItems(deviceNames);
-
-    selectedDevice_ = defaultDeviceName;
+    ui->deviceComboBox->addItem(kDefaultDeviceName);
+    selectedDevice_ = kDefaultDeviceName;
 
     ui->microphoneRadioButton->setChecked(true);
 
@@ -75,154 +91,80 @@ void MainWindow::init()
     ui->selectedFileLabel->setVisible(false);
 
     ui->recordingButton->setEnabled(true);
+    ui->recordingButton->setText("Start");
+
+    ui->stackedWidget->setCurrentWidget(ui->analyzerPage);
+
+    ui->editableListWidget->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
 }
 
-void MainWindow::onRecordingButtonToggledSlot(const bool checked)
+AudioSessionConfig MainWindow::buildSessionConfig() const
+{
+    AudioSessionConfig config;
+    config.inputType = inputType_;
+    config.source = inputType_ == InputType::Microphone ? selectedDevice_ : selectedFilePath_;
+    return config;
+}
+
+bool MainWindow::validateConfig(const AudioSessionConfig &config)
+{
+    if (config.source.isEmpty())
+    {
+        QMessageBox::warning(this, "Error", "Please select input.");
+        return false;
+    }
+
+    return true;
+}
+
+void MainWindow::onRecordingButtonToggledSlot(bool checked)
 {
     if (checked)
     {
-        if (inputType_ == InputType::kMicrophone && selectedDevice_.isEmpty())
+        const auto config = buildSessionConfig();
+
+        if (!validateConfig(config))
         {
-            QMessageBox::warning(this, "Error", "Please select input device.");
+            QSignalBlocker blocker(ui->recordingButton);
             ui->recordingButton->setChecked(false);
             return;
         }
 
-        if (inputType_ == InputType::kFile && selectedFilePath_.isEmpty())
-        {
-            QMessageBox::warning(this, "Error", "Please select audio file.");
-            ui->recordingButton->setChecked(false);
-            return;
-        }
+        plotController_->start();
+        audioStreamManager_->start(config);
 
-        startRecording();
         ui->recordingButton->setText("Stop");
     }
     else
     {
-        stopRecording();
-        ui->recordingButton->setText("Start");
+        audioStreamManager_->stop();
+        plotController_->stop();
 
-        std::lock_guard lock(mutex_);
-        amplitudePlot_->clear();
-        amplitudePlot2_->clear();
-        frequencyPlot_->clear();
-        frequencyPlot2_->clear();
-        amplitudePlot_->update();
-        amplitudePlot2_->update();
-        frequencyPlot_->update();
-        frequencyPlot2_->update();
+        ui->recordingButton->setText("Start");
     }
 
-    ui->microphoneRadioButton->setEnabled(!checked);
-    ui->fileRadioButton->setEnabled(!checked);
-    ui->deviceComboBox->setEnabled(!checked);
-    ui->selectFileButton->setEnabled(!checked);
-}
-
-void MainWindow::startRecording()
-{
-    if (isRunning_)
-        return;
-
-    workerThread_ = std::jthread{[this]() {
-        Plugins::Pipeline pipeline;
-
-        if (inputType_ == InputType::kMicrophone)
-        {
-            audioDeviceRecorder_->open(selectedDevice_.toStdString());
-        }
-        else
-        {
-            audioFileRecorder_->open(selectedFilePath_.toStdString());
-        }
-
-        audioPlayer_->start();
-
-        isRunning_ = true;
-
-        while (isRunning_)
-        {
-            Media::Buffer data;
-
-            if (inputType_ == InputType::kMicrophone)
-            {
-                data = audioDeviceRecorder_->read();
-            }
-            else
-            {
-                data = audioFileRecorder_->read();
-            }
-
-            if (data.empty())
-                continue;
-
-            auto inputData = AudioConverter::toDoubleVector(data);
-            auto outputData = pipeline.process(inputData);
-            auto outputIntData = AudioConverter::toIntVector(outputData);
-
-            double volume = pipeline.getVolume();
-            emit volumeLevelChangedSignal(volume);
-
-            audioPlayer_->write(outputIntData.data(), outputIntData.size());
-            {
-                std::lock_guard lock(mutex_);
-                amplitudePlot_->addData(inputData);
-                amplitudePlot2_->addData(outputData);
-                frequencyPlot_->addData(inputData);
-                frequencyPlot2_->addData(outputData);
-            }
-        }
-
-        if (inputType_ == InputType::kMicrophone)
-        {
-            audioDeviceRecorder_->close();
-        }
-        else
-        {
-            audioFileRecorder_->close();
-        }
-
-        audioPlayer_->stop();
-
-        isRunning_ = false;
-    }};
-
-    plotTimer_->start(kPlotUpdateInterval);
-}
-
-void MainWindow::stopRecording()
-{
-    if (!isRunning_)
-        return;
-
-    isRunning_ = false;
-
-    workerThread_ = {};
-
-    plotTimer_->stop();
-    amplitudePlot_->clear();
-    amplitudePlot_->update();
+    updateControlsState(checked);
 }
 
 void MainWindow::onDeviceChangedSlot(const QString &device)
 {
     selectedDevice_ = device;
-    if (inputType_ == InputType::kMicrophone)
+
+    if (inputType_ == InputType::Microphone)
     {
         ui->recordingButton->setEnabled(!selectedDevice_.isEmpty());
     }
 }
 
-void MainWindow::onInputTypeButtonSlot(const bool checked)
+void MainWindow::onInputTypeButtonSlot(bool checked)
 {
-    inputType_ = checked ? InputType::kMicrophone : InputType::kFile;
+    inputType_ = checked ? InputType::Microphone : InputType::File;
 
     ui->selectFileButton->setVisible(!checked);
     ui->selectedFileLabel->setVisible(!checked);
     ui->deviceComboBox->setVisible(checked);
 
-    if (inputType_ == InputType::kMicrophone)
+    if (inputType_ == InputType::Microphone)
     {
         ui->recordingButton->setEnabled(!selectedDevice_.isEmpty());
     }
@@ -245,13 +187,74 @@ void MainWindow::onFileDialogButtonSlot()
     QFileInfo fileInfo(filePath);
     ui->selectedFileLabel->setText(fileInfo.fileName());
 
-    if (inputType_ == InputType::kFile)
+    if (inputType_ == InputType::File)
     {
         ui->recordingButton->setEnabled(true);
     }
 }
 
-void MainWindow::onVolumeLevelChangedSlot(const double volume)
+void MainWindow::onVolumeChangedSlot(double volume)
 {
     ui->progressBar->setValue(static_cast<int>(volume));
+}
+
+void MainWindow::onStreamFinishedSlot()
+{
+    plotController_->stop();
+
+    if (ui->recordingButton->isChecked())
+    {
+        QSignalBlocker blocker(ui->recordingButton);
+        ui->recordingButton->setChecked(false);
+    }
+
+    ui->recordingButton->setText("Start");
+    updateControlsState(false);
+}
+
+void MainWindow::updateControlsState(bool isRecording)
+{
+    ui->microphoneRadioButton->setEnabled(!isRecording);
+    ui->fileRadioButton->setEnabled(!isRecording);
+    ui->deviceComboBox->setEnabled(!isRecording);
+    ui->selectFileButton->setEnabled(!isRecording);
+
+    ui->progressBar->setValue(0);
+}
+
+void MainWindow::onOpenListPageSlot()
+{
+    ui->stackedWidget->setCurrentWidget(ui->listPage);
+}
+
+void MainWindow::onBackToAnalyzerSlot()
+{
+    ui->stackedWidget->setCurrentWidget(ui->analyzerPage);
+}
+
+void MainWindow::onAddListItemSlot()
+{
+    bool ok = false;
+
+    const QString text = QInputDialog::getText(this, "Add item", "Item name:", QLineEdit::Normal, "", &ok);
+
+    if (ok && !text.trimmed().isEmpty())
+    {
+        auto *item = new QListWidgetItem(text.trimmed());
+        item->setFlags(item->flags() | Qt::ItemIsEditable);
+        ui->editableListWidget->addItem(item);
+    }
+}
+
+void MainWindow::onRemoveListItemSlot()
+{
+    auto *item = ui->editableListWidget->currentItem();
+
+    if (!item)
+    {
+        QMessageBox::information(this, "Info", "Select an item first.");
+        return;
+    }
+
+    delete item;
 }
