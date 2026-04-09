@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PluginsListForm</class>
+ <widget class="QWidget" name="PluginsListForm">
+     <widget class="QListWidget" name="editableListWidget">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>80</y>
+        <width>1300</width>
+        <height>620</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="addItemButton">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>740</y>
+        <width>140</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Add</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="removeItemButton">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>740</y>
+        <width>140</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Remove</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="backToAnalyzerButton">
+      <property name="geometry">
+       <rect>
+        <x>1260</x>
+        <y>740</y>
+        <width>140</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Back</string>
+      </property>
+     </widget>
+
+    </widget>
+ <resources/>
+ <connections/>
+</ui>

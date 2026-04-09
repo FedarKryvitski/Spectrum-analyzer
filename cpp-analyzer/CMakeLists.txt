@@ -22,7 +22,11 @@ file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
     src/*.cpp
 )
 
-file(GLOB UI_FILES "ui/*.ui")
+file(GLOB UI_FILES
+    "ui/*.ui"
+    "ui/*.h"
+    "ui/*.cpp"
+)
 
 add_subdirectory(third_party)
 
