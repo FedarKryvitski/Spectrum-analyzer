@@ -3,7 +3,8 @@
 #include <cstdint>
 #include <vector>
 
-namespace Media {
+namespace Media
+{
 
 using Sample = int16_t;
 using Buffer = std::vector<Sample>;

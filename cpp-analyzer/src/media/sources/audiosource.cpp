@@ -1,6 +1,7 @@
 #include "media/sources/audiosource.h"
 
-namespace Media {
+namespace Media
+{
 
 void AudioSource::setBufferSize(const size_t size)
 {

@@ -8,7 +8,8 @@ struct AVFrame;
 struct AVPacket;
 struct SwrContext;
 
-namespace Media {
+namespace Media
+{
 
 class AudioFileSource final : public AudioSource
 {
@@ -25,11 +26,11 @@ class AudioFileSource final : public AudioSource
     bool initResampler();
 
   private:
-    AVFormatContext* formatContext_ = nullptr;
-    AVCodecContext* codecContext_ = nullptr;
-    AVFrame* frame_ = nullptr;
-    AVPacket* packet_ = nullptr;
-    SwrContext* swrContext_ = nullptr;
+    AVFormatContext *formatContext_ = nullptr;
+    AVCodecContext *codecContext_ = nullptr;
+    AVFrame *frame_ = nullptr;
+    AVPacket *packet_ = nullptr;
+    SwrContext *swrContext_ = nullptr;
 
     int audioStreamIndex_ = -1;
     bool endOfFile_ = false;

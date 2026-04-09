@@ -2,7 +2,8 @@
 
 #include "iaudiosource.h"
 
-namespace Media {
+namespace Media
+{
 
 class AudioSource : public IAudioSource
 {
@@ -14,7 +15,7 @@ class AudioSource : public IAudioSource
     size_t getBufferSize() const override;
 
   protected:
-    size_t bufferSize_{ Media::kBufferSize };
+    size_t bufferSize_{Media::kBufferSize};
 };
 
 } // namespace Media

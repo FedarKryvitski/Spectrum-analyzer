@@ -23,14 +23,14 @@ class AnalyzerForm : public QWidget
 {
     Q_OBJECT
 
-public:
+  public:
     explicit AnalyzerForm(QWidget *parent = nullptr);
     ~AnalyzerForm();
 
-signals:
+  signals:
     void openListRequested();
 
-private slots:
+  private slots:
     void onRecordingButtonToggledSlot(bool checked);
     void onDeviceChangedSlot(const QString &device);
     void onInputTypeButtonSlot(bool checked);
@@ -38,15 +38,15 @@ private slots:
     void onVolumeChangedSlot(double volume);
     void onStreamFinishedSlot();
 
-private:
+  private:
     void connectUi();
     void connectAudio();
     void init();
     void updateControlsState(bool isRecording);
     AudioSessionConfig buildSessionConfig() const;
-    bool validateConfig(const AudioSessionConfig& config);
+    bool validateConfig(const AudioSessionConfig &config);
 
-private:
+  private:
     Ui::AnalyzerForm *ui;
     std::unique_ptr<AudioStreamManager> audioStreamManager_;
     std::unique_ptr<Plot::PlotController> plotController_;

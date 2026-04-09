@@ -91,10 +91,9 @@ bool AudioFileSource::initResampler()
     AVChannelLayout outLayout;
     av_channel_layout_default(&outLayout, kChannels);
 
-    int result = swr_alloc_set_opts2(&swrContext_,
-                                     &outLayout, AV_SAMPLE_FMT_S16, kSampleRate,
-                                     &codecContext_->ch_layout, codecContext_->sample_fmt, codecContext_->sample_rate,
-                                     0, nullptr);
+    int result =
+        swr_alloc_set_opts2(&swrContext_, &outLayout, AV_SAMPLE_FMT_S16, kSampleRate, &codecContext_->ch_layout,
+                            codecContext_->sample_fmt, codecContext_->sample_rate, 0, nullptr);
 
     if (!swrContext_)
     {
@@ -182,8 +181,8 @@ Buffer AudioFileSource::read()
 
             uint8_t *outPtr[] = {reinterpret_cast<uint8_t *>(outBuffer.data() + oldSize)};
 
-            const int converted =
-                swr_convert(swrContext_, outPtr, outSamples, (const uint8_t **)frame_->extended_data, frame_->nb_samples);
+            const int converted = swr_convert(swrContext_, outPtr, outSamples, (const uint8_t **)frame_->extended_data,
+                                              frame_->nb_samples);
 
             if (converted < 0)
             {

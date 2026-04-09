@@ -2,7 +2,8 @@
 
 #include <fft/fft.h>
 
-namespace Plugins {
+namespace Plugins
+{
 
 ComplexBuffer PipelineSource::write(Buffer buffer)
 {

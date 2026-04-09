@@ -28,7 +28,8 @@ void AudioPlayer::start()
         return;
     }
 
-    err = snd_pcm_set_params(handle_, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_INTERLEAVED, kChannels, kSampleRate, 1, 50000);
+    err = snd_pcm_set_params(handle_, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_INTERLEAVED, kChannels, kSampleRate, 1,
+                             50000);
     if (err < 0)
     {
         std::cout << "Playback open error: " << snd_strerror(err);
@@ -48,7 +49,7 @@ void AudioPlayer::stop()
     isPlaying_ = false;
 }
 
-void AudioPlayer::write(const void* buffer, size_t size)
+void AudioPlayer::write(const void *buffer, size_t size)
 {
     if (!isPlaying_)
         return;

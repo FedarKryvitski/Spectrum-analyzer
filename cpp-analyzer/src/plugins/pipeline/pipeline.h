@@ -4,12 +4,14 @@
 #include "pipelinesink.h"
 #include "pipelinesource.h"
 
-#include <vector>
 #include <memory>
+#include <vector>
 
-namespace Plugins {
+namespace Plugins
+{
 
-class Pipeline {
+class Pipeline
+{
   public:
     Pipeline() noexcept;
     virtual ~Pipeline() = default;

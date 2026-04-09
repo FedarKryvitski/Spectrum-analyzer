@@ -5,10 +5,7 @@
 #include "pluginslistform.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-      , ui(new Ui::MainWindow)
-      , analyzerForm_(nullptr)
-      , pluginsListForm_(nullptr)
+    : QMainWindow(parent), ui(new Ui::MainWindow), analyzerForm_(nullptr), pluginsListForm_(nullptr)
 {
     ui->setupUi(this);
 
@@ -34,15 +31,9 @@ void MainWindow::init()
 
 void MainWindow::connectPages()
 {
-    connect(analyzerForm_, &AnalyzerForm::openListRequested,
-            this, [this]()
-            {
-                ui->stackedWidget->setCurrentWidget(pluginsListForm_);
-            });
+    connect(analyzerForm_, &AnalyzerForm::openListRequested, this,
+            [this]() { ui->stackedWidget->setCurrentWidget(pluginsListForm_); });
 
-    connect(pluginsListForm_, &PluginsListForm::backRequested,
-            this, [this]()
-            {
-                ui->stackedWidget->setCurrentWidget(analyzerForm_);
-            });
+    connect(pluginsListForm_, &PluginsListForm::backRequested, this,
+            [this]() { ui->stackedWidget->setCurrentWidget(analyzerForm_); });
 }

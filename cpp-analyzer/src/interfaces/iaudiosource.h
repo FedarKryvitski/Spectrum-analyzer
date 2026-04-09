@@ -4,7 +4,8 @@
 
 #include <string>
 
-namespace Media {
+namespace Media
+{
 
 class IAudioSource
 {

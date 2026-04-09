@@ -6,9 +6,11 @@
 
 #include <QDebug>
 
-namespace Plugins {
+namespace Plugins
+{
 
-namespace {
+namespace
+{
 
 static double linearToExponent(const double linear)
 {
@@ -26,20 +28,18 @@ static double linearToExponent(const double linear)
     return std::clamp(percent, 0.0, 100.0);
 }
 
-static double calculateVolume(const Buffer& buffer)
+static double calculateVolume(const Buffer &buffer)
 {
     double result = 0.0;
 
-    std::ranges::for_each(buffer, [&result](const auto& sample){
-        result += std::abs(sample);
-    });
+    std::ranges::for_each(buffer, [&result](const auto &sample) { result += std::abs(sample); });
 
     result /= buffer.size();
 
     return linearToExponent(result);
 }
 
-}
+} // namespace
 
 Pipeline::Pipeline() noexcept
 {
@@ -57,7 +57,7 @@ Buffer Pipeline::process(Buffer input)
 {
     ComplexBuffer complexBuffer = source_.write(input);
 
-    std::ranges::for_each(plugins_.begin(), plugins_.end(), [&](std::shared_ptr<IPlugin>& plugin){
+    std::ranges::for_each(plugins_.begin(), plugins_.end(), [&](std::shared_ptr<IPlugin> &plugin) {
         if (!plugin->isEnabled())
             return;
 

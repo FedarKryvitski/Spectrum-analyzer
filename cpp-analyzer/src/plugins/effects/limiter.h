@@ -13,9 +13,15 @@ class Limiter : public IPlugin
     ~Limiter() override = default;
 
   public:
-    void setLimitLevel(const double limitLevel) { limitLevel_ = limitLevel; }
+    void setLimitLevel(const double limitLevel)
+    {
+        limitLevel_ = limitLevel;
+    }
 
-    double getLimitLevel() const { return limitLevel_; }
+    double getLimitLevel() const
+    {
+        return limitLevel_;
+    }
 
     ComplexBuffer process(ComplexBuffer buffer) override;
 

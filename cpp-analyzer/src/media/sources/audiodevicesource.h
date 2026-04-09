@@ -4,7 +4,8 @@
 
 #include <alsa/asoundlib.h>
 
-namespace Media {
+namespace Media
+{
 
 class AudioDeviceSource final : public AudioSource
 {
@@ -18,7 +19,7 @@ class AudioDeviceSource final : public AudioSource
     Buffer read() override;
 
   private:
-    snd_pcm_t* handle_{};
+    snd_pcm_t *handle_{};
     bool isRecording_{false};
 };
 

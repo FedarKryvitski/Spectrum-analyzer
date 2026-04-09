@@ -2,7 +2,8 @@
 
 #include <fft/fft.h>
 
-namespace Plugins {
+namespace Plugins
+{
 
 Buffer PipelineSink::read(ComplexBuffer buffer)
 {
@@ -18,7 +19,7 @@ Buffer PipelineSink::read(ComplexBuffer buffer)
 
     for (int k = 1; k < n / 2; ++k)
     {
-        a[2 * k]     = buffer[k].real();
+        a[2 * k] = buffer[k].real();
         a[2 * k + 1] = buffer[k].imag();
     }
 
@@ -28,7 +29,7 @@ Buffer PipelineSink::read(ComplexBuffer buffer)
 
     rdft(n, -1, a.data(), ip.data(), w.data());
 
-    for (auto& v : a)
+    for (auto &v : a)
         v /= n;
 
     Buffer output(a.begin(), a.end());

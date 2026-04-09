@@ -13,9 +13,15 @@ class Gainer : public IPlugin
     ~Gainer() override = default;
 
   public:
-    void setGainLevel(const double gainLevel) { gainLevel_ = gainLevel; }
+    void setGainLevel(const double gainLevel)
+    {
+        gainLevel_ = gainLevel;
+    }
 
-    double getGainLevel() const { return gainLevel_; }
+    double getGainLevel() const
+    {
+        return gainLevel_;
+    }
 
     ComplexBuffer process(ComplexBuffer buffer) override;
 

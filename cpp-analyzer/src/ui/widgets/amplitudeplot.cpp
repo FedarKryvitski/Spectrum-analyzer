@@ -2,15 +2,15 @@
 
 #include <algorithm>
 
-namespace {
+namespace
+{
 
 using namespace std::chrono_literals;
 
-constexpr static size_t kPlotDecimationStep{ 32 };
-constexpr static size_t kPlotRangeX{ 1024 };
+constexpr static size_t kPlotDecimationStep{32};
+constexpr static size_t kPlotRangeX{1024};
 
-template<typename T>
-std::vector<T> decimate(std::span<const T>& source, size_t decimationStep)
+template <typename T> std::vector<T> decimate(std::span<const T> &source, size_t decimationStep)
 {
     std::vector<T> result;
     result.reserve(source.size() / decimationStep + 1);
@@ -25,11 +25,10 @@ std::vector<T> decimate(std::span<const T>& source, size_t decimationStep)
 
 } // namespace
 
-namespace Plot {
+namespace Plot
+{
 
-AmplitudePlot::AmplitudePlot(QCustomPlot* parent) noexcept
-    : axisX_(kPlotRangeX)
-    , axisY_(kPlotRangeX)
+AmplitudePlot::AmplitudePlot(QCustomPlot *parent) noexcept : axisX_(kPlotRangeX), axisY_(kPlotRangeX)
 {
     plot_ = parent;
     plot_->xAxis->setRange(0, kPlotRangeX);
@@ -56,9 +55,7 @@ void AmplitudePlot::addData(Data inputData)
 
     if (newDataSize >= kPlotRangeX)
     {
-        std::ranges::copy(decimatedData.end() - kPlotRangeX,
-                          decimatedData.end(),
-                          axisY_.begin());
+        std::ranges::copy(decimatedData.end() - kPlotRangeX, decimatedData.end(), axisY_.begin());
     }
     else
     {

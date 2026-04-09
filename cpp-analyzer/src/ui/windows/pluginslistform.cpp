@@ -6,22 +6,17 @@
 #include <QListWidgetItem>
 #include <QMessageBox>
 
-PluginsListForm::PluginsListForm(QWidget *parent)
-    : QWidget(parent)
-      , ui(new Ui::PluginsListForm)
+PluginsListForm::PluginsListForm(QWidget *parent) : QWidget(parent), ui(new Ui::PluginsListForm)
 {
     ui->setupUi(this);
 
     init();
 
-    connect(ui->addItemButton, &QPushButton::clicked,
-            this, &PluginsListForm::onAddItemSlot);
+    connect(ui->addItemButton, &QPushButton::clicked, this, &PluginsListForm::onAddItemSlot);
 
-    connect(ui->removeItemButton, &QPushButton::clicked,
-            this, &PluginsListForm::onRemoveItemSlot);
+    connect(ui->removeItemButton, &QPushButton::clicked, this, &PluginsListForm::onRemoveItemSlot);
 
-    connect(ui->backToAnalyzerButton, &QPushButton::clicked,
-            this, &PluginsListForm::backRequested);
+    connect(ui->backToAnalyzerButton, &QPushButton::clicked, this, &PluginsListForm::backRequested);
 }
 
 PluginsListForm::~PluginsListForm()
@@ -31,22 +26,13 @@ PluginsListForm::~PluginsListForm()
 
 void PluginsListForm::init()
 {
-    ui->editableListWidget->setEditTriggers(
-        QAbstractItemView::DoubleClicked |
-        QAbstractItemView::EditKeyPressed
-        );
+    ui->editableListWidget->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
 }
 
 void PluginsListForm::onAddItemSlot()
 {
     bool ok = false;
-    const QString text = QInputDialog::getText(
-        this,
-        "Add item",
-        "Item name:",
-        QLineEdit::Normal,
-        "",
-        &ok);
+    const QString text = QInputDialog::getText(this, "Add item", "Item name:", QLineEdit::Normal, "", &ok);
 
     if (ok && !text.trimmed().isEmpty())
     {

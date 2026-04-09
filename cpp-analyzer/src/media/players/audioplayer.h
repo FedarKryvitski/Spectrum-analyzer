@@ -19,7 +19,7 @@ class AudioPlayer final
 
     void setDevice(const std::string &device);
 
-    void write(const void* buffer, size_t size);
+    void write(const void *buffer, size_t size);
 
   private:
     snd_pcm_t *handle_{nullptr};

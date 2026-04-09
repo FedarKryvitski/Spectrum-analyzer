@@ -1,8 +1,8 @@
 #include "analyzerform.h"
 #include "ui_analyzerform.h"
 
-#include "manager/audiostreammanager.h"
 #include "controllers/plotcontroller.h"
+#include "manager/audiostreammanager.h"
 
 #include <QAbstractItemView>
 #include <QFileDialog>
@@ -15,20 +15,14 @@ namespace
 constexpr auto kDefaultDeviceName = "default";
 }
 
-AnalyzerForm::AnalyzerForm(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::AnalyzerForm)
+AnalyzerForm::AnalyzerForm(QWidget *parent) : QWidget(parent), ui(new Ui::AnalyzerForm)
 {
     ui->setupUi(this);
 
     audioStreamManager_ = std::make_unique<AudioStreamManager>(this);
 
-    plotController_ = std::make_unique<Plot::PlotController>(
-        ui->amplitudePlot,
-        ui->frequencyPlot,
-        ui->amplitudePlot_2,
-        ui->frequencyPlot_2,
-        this);
+    plotController_ = std::make_unique<Plot::PlotController>(ui->amplitudePlot, ui->frequencyPlot, ui->amplitudePlot_2,
+                                                             ui->frequencyPlot_2, this);
 
     connectUi();
     connectAudio();
@@ -45,47 +39,38 @@ AnalyzerForm::~AnalyzerForm()
 
 void AnalyzerForm::connectUi()
 {
-    connect(ui->recordingButton, &QPushButton::toggled,
-            this, &AnalyzerForm::onRecordingButtonToggledSlot);
+    connect(ui->recordingButton, &QPushButton::toggled, this, &AnalyzerForm::onRecordingButtonToggledSlot);
 
-    connect(ui->deviceComboBox, &QComboBox::currentTextChanged,
-            this, &AnalyzerForm::onDeviceChangedSlot);
+    connect(ui->deviceComboBox, &QComboBox::currentTextChanged, this, &AnalyzerForm::onDeviceChangedSlot);
 
-    connect(ui->microphoneRadioButton, &QRadioButton::toggled,
-            this, &AnalyzerForm::onInputTypeButtonSlot);
+    connect(ui->microphoneRadioButton, &QRadioButton::toggled, this, &AnalyzerForm::onInputTypeButtonSlot);
 
-    connect(ui->selectFileButton, &QPushButton::clicked,
-            this, &AnalyzerForm::onFileDialogButtonSlot);
+    connect(ui->selectFileButton, &QPushButton::clicked, this, &AnalyzerForm::onFileDialogButtonSlot);
 
-    connect(ui->openListPageButton, &QPushButton::clicked,
-            this, &AnalyzerForm::openListRequested);
+    connect(ui->openListPageButton, &QPushButton::clicked, this, &AnalyzerForm::openListRequested);
 }
 
 void AnalyzerForm::connectAudio()
 {
-    connect(audioStreamManager_.get(), &AudioStreamManager::volumeChanged,
-            this, &AnalyzerForm::onVolumeChangedSlot);
+    connect(audioStreamManager_.get(), &AudioStreamManager::volumeChanged, this, &AnalyzerForm::onVolumeChangedSlot);
 
-    connect(audioStreamManager_.get(), &AudioStreamManager::frameReady,
-            plotController_.get(), &Plot::PlotController::onFrameReady,
-            Qt::QueuedConnection);
+    connect(audioStreamManager_.get(), &AudioStreamManager::frameReady, plotController_.get(),
+            &Plot::PlotController::onFrameReady, Qt::QueuedConnection);
 
-    connect(audioStreamManager_.get(), &AudioStreamManager::errorOccurred,
-            this, [this](const QString& message) {
-                QMessageBox::warning(this, "Error", message);
+    connect(audioStreamManager_.get(), &AudioStreamManager::errorOccurred, this, [this](const QString &message) {
+        QMessageBox::warning(this, "Error", message);
 
-                {
-                    QSignalBlocker blocker(ui->recordingButton);
-                    ui->recordingButton->setChecked(false);
-                }
+        {
+            QSignalBlocker blocker(ui->recordingButton);
+            ui->recordingButton->setChecked(false);
+        }
 
-                ui->recordingButton->setText("Start");
-                updateControlsState(false);
-                plotController_->stop();
-            });
+        ui->recordingButton->setText("Start");
+        updateControlsState(false);
+        plotController_->stop();
+    });
 
-    connect(audioStreamManager_.get(), &AudioStreamManager::finished,
-            this, &AnalyzerForm::onStreamFinishedSlot,
+    connect(audioStreamManager_.get(), &AudioStreamManager::finished, this, &AnalyzerForm::onStreamFinishedSlot,
             Qt::QueuedConnection);
 }
 
@@ -112,7 +97,7 @@ AudioSessionConfig AnalyzerForm::buildSessionConfig() const
     return config;
 }
 
-bool AnalyzerForm::validateConfig(const AudioSessionConfig& config)
+bool AnalyzerForm::validateConfig(const AudioSessionConfig &config)
 {
     if (config.source.isEmpty())
     {
@@ -182,11 +167,8 @@ void AnalyzerForm::onInputTypeButtonSlot(bool checked)
 
 void AnalyzerForm::onFileDialogButtonSlot()
 {
-    QString filePath = QFileDialog::getOpenFileName(
-        this,
-        "Select audio file",
-        "",
-        "Audio Files (*.wav *.mp3 *.flac *.ogg);;All Files (*.*)");
+    QString filePath = QFileDialog::getOpenFileName(this, "Select audio file", "",
+                                                    "Audio Files (*.wav *.mp3 *.flac *.ogg);;All Files (*.*)");
 
     if (filePath.isEmpty())
         return;

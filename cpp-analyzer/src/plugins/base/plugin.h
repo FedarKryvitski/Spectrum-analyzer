@@ -13,11 +13,19 @@ class IPlugin
 
     virtual ComplexBuffer process(ComplexBuffer input) = 0;
 
-    virtual void reset() {}
+    virtual void reset()
+    {
+    }
 
-    virtual void setEnabled(const bool enabled) { enabled_ = enabled; }
+    virtual void setEnabled(const bool enabled)
+    {
+        enabled_ = enabled;
+    }
 
-    virtual bool isEnabled() const { return enabled_; }
+    virtual bool isEnabled() const
+    {
+        return enabled_;
+    }
 
   protected:
     bool enabled_{true};

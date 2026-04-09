@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../session/audiosessionconfig.h"
-#include "../../media/players/audioplayer.h"
 #include "interfaces/iaudiosource.h"
+#include "players/audioplayer.h"
+#include "session/audiosessionconfig.h"
 
 #include <QObject>
 #include <atomic>

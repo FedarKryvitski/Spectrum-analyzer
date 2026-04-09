@@ -2,7 +2,8 @@
 
 #include "base/types.h"
 
-namespace Plugins {
+namespace Plugins
+{
 
 class PipelineSink final
 {
