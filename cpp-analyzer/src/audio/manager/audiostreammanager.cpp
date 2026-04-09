@@ -70,8 +70,9 @@ void AudioStreamManager::run(AudioSessionConfig config, std::stop_token stopToke
             auto outputData = pipeline.process(inputData);
             auto outputIntData = AudioConverter::toIntVector(outputData);
 
-            emit volumeChanged(pipeline.getVolume());
             emit frameReady(inputData, outputData);
+            emit inputVolumeChanged(pipeline.getInputVolume());
+            emit outputVolumeChanged(pipeline.getOutputVolume());
 
             audioPlayer_->write(outputIntData.data(), outputIntData.size());
         }

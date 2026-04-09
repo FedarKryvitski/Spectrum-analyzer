@@ -21,8 +21,8 @@ AnalyzerForm::AnalyzerForm(QWidget *parent) : QWidget(parent), ui(new Ui::Analyz
 
     audioStreamManager_ = std::make_unique<AudioStreamManager>(this);
 
-    plotController_ = std::make_unique<Plot::PlotController>(ui->amplitudePlot, ui->frequencyPlot, ui->amplitudePlot_2,
-                                                             ui->frequencyPlot_2, this);
+    plotController_ = std::make_unique<Plot::PlotController>(ui->inputAmplitudePlot, ui->inputFrequencyPlot, ui->outputAmplitudePlot,
+                                                             ui->outputFrequencyPlot, this);
 
     connectUi();
     connectAudio();
@@ -40,19 +40,16 @@ AnalyzerForm::~AnalyzerForm()
 void AnalyzerForm::connectUi()
 {
     connect(ui->recordingButton, &QPushButton::toggled, this, &AnalyzerForm::onRecordingButtonToggledSlot);
-
     connect(ui->deviceComboBox, &QComboBox::currentTextChanged, this, &AnalyzerForm::onDeviceChangedSlot);
-
     connect(ui->microphoneRadioButton, &QRadioButton::toggled, this, &AnalyzerForm::onInputTypeButtonSlot);
-
     connect(ui->selectFileButton, &QPushButton::clicked, this, &AnalyzerForm::onFileDialogButtonSlot);
-
     connect(ui->openListPageButton, &QPushButton::clicked, this, &AnalyzerForm::openListRequested);
 }
 
 void AnalyzerForm::connectAudio()
 {
-    connect(audioStreamManager_.get(), &AudioStreamManager::volumeChanged, this, &AnalyzerForm::onVolumeChangedSlot);
+    connect(audioStreamManager_.get(), &AudioStreamManager::inputVolumeChanged, this, &AnalyzerForm::onInputVolumeChangedSlot);
+    connect(audioStreamManager_.get(), &AudioStreamManager::outputVolumeChanged, this, &AnalyzerForm::onOutputVolumeChangedSlot);
 
     connect(audioStreamManager_.get(), &AudioStreamManager::frameReady, plotController_.get(),
             &Plot::PlotController::onFrameReady, Qt::QueuedConnection);
@@ -184,9 +181,14 @@ void AnalyzerForm::onFileDialogButtonSlot()
     }
 }
 
-void AnalyzerForm::onVolumeChangedSlot(double volume)
+void AnalyzerForm::onInputVolumeChangedSlot(const double volume)
 {
-    ui->progressBar->setValue(static_cast<int>(volume));
+    ui->inputVolumeBar->setValue(static_cast<int>(std::round(volume)));
+}
+
+void AnalyzerForm::onOutputVolumeChangedSlot(const double volume)
+{
+    ui->outputVolumeBar->setValue(static_cast<int>(std::round(volume)));
 }
 
 void AnalyzerForm::onStreamFinishedSlot()
@@ -210,5 +212,6 @@ void AnalyzerForm::updateControlsState(bool isRecording)
     ui->deviceComboBox->setEnabled(!isRecording);
     ui->selectFileButton->setEnabled(!isRecording);
 
-    ui->progressBar->setValue(0);
+    ui->inputVolumeBar->setValue(0);
+    ui->outputVolumeBar->setValue(0);
 }

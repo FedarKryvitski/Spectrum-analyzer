@@ -20,11 +20,11 @@ class AudioStreamManager : public QObject
 
     void start(const AudioSessionConfig &config);
     void stop();
-
     bool isRunning() const;
 
   signals:
-    void volumeChanged(double volume);
+    void inputVolumeChanged(double volume);
+    void outputVolumeChanged(double volume);
     void frameReady(const std::vector<double> &input, const std::vector<double> &output);
     void errorOccurred(const QString &message);
     void finished();

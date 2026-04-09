@@ -55,7 +55,8 @@ Pipeline::Pipeline() noexcept
 
 Buffer Pipeline::process(Buffer input)
 {
-    ComplexBuffer complexBuffer = source_.write(input);
+    inputVolume_ = calculateVolume(input);
+    ComplexBuffer complexBuffer = source_.write(std::move(input));
 
     std::ranges::for_each(plugins_.begin(), plugins_.end(), [&](std::shared_ptr<IPlugin> &plugin) {
         if (!plugin->isEnabled())
@@ -64,16 +65,20 @@ Buffer Pipeline::process(Buffer input)
         complexBuffer = plugin->process(std::move(complexBuffer));
     });
 
-    Buffer buffer = sink_.read(complexBuffer);
-
-    volume_ = calculateVolume(buffer);
+    auto buffer = sink_.read(complexBuffer);
+    outputVolume_ = calculateVolume(buffer);
 
     return buffer;
 }
 
-double Pipeline::getVolume() const
+double Pipeline::getInputVolume() const
 {
-    return volume_;
+    return inputVolume_;
+}
+
+double Pipeline::getOutputVolume() const
+{
+    return outputVolume_;
 }
 
 } // namespace Plugins

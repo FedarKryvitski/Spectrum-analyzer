@@ -2,176 +2,181 @@
 <ui version="4.0">
  <class>AnalyzerForm</class>
  <widget class="QWidget" name="analyzerPage">
-     <widget class="QCustomPlot" name="amplitudePlot" native="true">
-      <property name="geometry">
-       <rect>
-        <x>80</x>
-        <y>20</y>
-        <width>620</width>
-        <height>320</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QCustomPlot" name="amplitudePlot_2" native="true">
-      <property name="geometry">
-       <rect>
-        <x>800</x>
-        <y>20</y>
-        <width>620</width>
-        <height>320</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="recordingButton">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="geometry">
-       <rect>
-        <x>40</x>
-        <y>380</y>
-        <width>120</width>
-        <height>70</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>15</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>Start</string>
-      </property>
-      <property name="checkable">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QRadioButton" name="microphoneRadioButton">
-      <property name="geometry">
-       <rect>
-        <x>200</x>
-        <y>390</y>
-        <width>140</width>
-        <height>24</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Microphone</string>
-      </property>
-      <property name="checked">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QRadioButton" name="fileRadioButton">
-      <property name="geometry">
-       <rect>
-        <x>200</x>
-        <y>420</y>
-        <width>140</width>
-        <height>24</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>File</string>
-      </property>
-     </widget>
-     <widget class="QComboBox" name="deviceComboBox">
-      <property name="geometry">
-       <rect>
-        <x>320</x>
-        <y>385</y>
-        <width>360</width>
-        <height>55</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>13</pointsize>
-       </font>
-      </property>
-      <property name="placeholderText">
-       <string>Select audio input...</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="selectFileButton">
-      <property name="geometry">
-       <rect>
-        <x>320</x>
-        <y>385</y>
-        <width>180</width>
-        <height>55</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Select file</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="selectedFileLabel">
-      <property name="geometry">
-       <rect>
-        <x>520</x>
-        <y>390</y>
-        <width>320</width>
-        <height>45</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-     <widget class="QCustomPlot" name="frequencyPlot" native="true">
-      <property name="geometry">
-       <rect>
-        <x>80</x>
-        <y>500</y>
-        <width>620</width>
-        <height>320</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QCustomPlot" name="frequencyPlot_2" native="true">
-      <property name="geometry">
-       <rect>
-        <x>800</x>
-        <y>500</y>
-        <width>620</width>
-        <height>320</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QProgressBar" name="progressBar">
-      <property name="geometry">
-       <rect>
-        <x>700</x>
-        <y>240</y>
-        <width>61</width>
-        <height>321</height>
-       </rect>
-      </property>
-      <property name="value">
-       <number>0</number>
-      </property>
-      <property name="textVisible">
-       <bool>false</bool>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Orientation::Vertical</enum>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="openListPageButton">
-      <property name="geometry">
-       <rect>
-        <x>1240</x>
-        <y>385</y>
-        <width>180</width>
-        <height>55</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Open list</string>
-      </property>
-     </widget>
-    </widget>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>622</width>
+    <height>332</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="rootLayout">
+   <item>
+    <layout class="QHBoxLayout" name="topHorizontalLayout">
+     <item>
+      <widget class="QWidget" name="plotsContainer">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding"/>
+       </property>
+       <layout class="QGridLayout" name="plotsLayout">
+        <item row="0" column="0">
+         <widget class="QCustomPlot" name="inputAmplitudePlot"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QCustomPlot" name="inputFrequencyPlot"/>
+        </item>
+        <item row="0" column="1">
+         <widget class="QCustomPlot" name="outputAmplitudePlot"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QCustomPlot" name="outputFrequencyPlot"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QWidget" name="volumeContainer">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Expanding"/>
+       </property>
+       <layout class="QHBoxLayout" name="volumeLayout">
+        <item>
+         <layout class="QVBoxLayout" name="inputVolumeLayout">
+          <item>
+           <widget class="QLabel" name="inputVolumeLabel">
+            <property name="text">
+             <string>Input</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QProgressBar" name="inputVolumeBar">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="textVisible">
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>40</width>
+              <height>250</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="outputVolumeLayout">
+          <item>
+           <widget class="QLabel" name="outputVolumeLabel">
+            <property name="text">
+             <string>Output</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QProgressBar" name="outputVolumeBar">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="textVisible">
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>40</width>
+              <height>250</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="controlsLayout">
+     <item>
+      <widget class="QPushButton" name="recordingButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Start</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="microphoneRadioButton">
+       <property name="text">
+        <string>Microphone</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="fileRadioButton">
+       <property name="text">
+        <string>File</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="deviceComboBox">
+       <property name="placeholderText">
+        <string>Select audio input...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="selectFileButton">
+       <property name="text">
+        <string>Select file</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="selectedFileLabel">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="openListPageButton">
+       <property name="text">
+        <string>Open list</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

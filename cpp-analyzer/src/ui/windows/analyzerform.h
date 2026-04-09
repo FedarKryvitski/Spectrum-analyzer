@@ -35,7 +35,8 @@ class AnalyzerForm : public QWidget
     void onDeviceChangedSlot(const QString &device);
     void onInputTypeButtonSlot(bool checked);
     void onFileDialogButtonSlot();
-    void onVolumeChangedSlot(double volume);
+    void onInputVolumeChangedSlot(double volume);
+    void onOutputVolumeChangedSlot(double volume);
     void onStreamFinishedSlot();
 
   private:

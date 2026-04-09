@@ -18,7 +18,8 @@ class Pipeline
 
     Buffer process(Buffer input);
 
-    double getVolume() const;
+    double getInputVolume() const;
+    double getOutputVolume() const;
 
   private:
     std::vector<std::shared_ptr<IPlugin>> plugins_;
@@ -26,7 +27,7 @@ class Pipeline
     PipelineSink sink_;
     PipelineSource source_;
 
-    double volume_{0};
+    double inputVolume_{}, outputVolume_{};
 };
 
 } // namespace Plugins
