@@ -1,4 +1,4 @@
-#include "plugins/pipelinesource.h"
+#include "pipeline/pipelinesource.h"
 
 #include <fft/fft.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "plugin.h"
+#include "base/plugin.h"
 #include "pipelinesink.h"
 #include "pipelinesource.h"
 

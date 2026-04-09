@@ -1,6 +1,6 @@
 #pragma once
 
-#include "media/audiosource.h"
+#include "media/sources/audiosource.h"
 
 #include <alsa/asoundlib.h>
 

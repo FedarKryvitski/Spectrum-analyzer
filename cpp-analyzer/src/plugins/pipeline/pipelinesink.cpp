@@ -1,4 +1,4 @@
-#include "plugins/pipelinesink.h"
+#include "pipeline/pipelinesink.h"
 
 #include <fft/fft.h>
 

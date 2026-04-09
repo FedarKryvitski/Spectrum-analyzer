@@ -1,4 +1,4 @@
-#include "plugins/gainer.h"
+#include "effects/gainer.h"
 
 #include <algorithm>
 

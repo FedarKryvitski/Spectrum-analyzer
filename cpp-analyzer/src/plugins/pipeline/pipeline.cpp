@@ -1,6 +1,6 @@
-#include "plugins/pipeline.h"
-#include "plugins/gainer.h"
-#include "plugins/limiter.h"
+#include "pipeline/pipeline.h"
+#include "effects/gainer.h"
+#include "effects/limiter.h"
 
 #include <algorithm>
 

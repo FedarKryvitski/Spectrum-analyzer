@@ -1,7 +1,7 @@
 #pragma once
 
-#include "plugin.h"
-#include "types.h"
+#include "base/plugin.h"
+#include "base/types.h"
 
 namespace Plugins
 {

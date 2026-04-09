@@ -1,8 +1,8 @@
 #include "analyzerform.h"
 #include "ui_analyzerform.h"
 
-#include "audiostreammanager.h"
-#include "plotcontroller.h"
+#include "manager/audiostreammanager.h"
+#include "controllers/plotcontroller.h"
 
 #include <QAbstractItemView>
 #include <QFileDialog>

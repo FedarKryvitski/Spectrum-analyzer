@@ -1,10 +1,10 @@
 #include "audiostreammanager.h"
 
-#include "media/audiodevicesource.h"
-#include "media/audiofilesource.h"
+#include "sources/audiodevicesource.h"
+#include "sources/audiofilesource.h"
 
-#include "audioconverter.h"
-#include "plugins/pipeline.h"
+#include "converter/audioconverter.h"
+#include "pipeline/pipeline.h"
 
 #include <exception>
 
