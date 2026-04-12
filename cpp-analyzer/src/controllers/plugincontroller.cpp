@@ -38,6 +38,12 @@ void PluginController::movePlugin(int oldIndex, int newIndex)
     emit pipelineChanged();
 }
 
+void PluginController::togglePlugin(int index, bool enabled)
+{
+    pipeline_->togglePlugin(index, enabled);
+    emit pipelineChanged();
+}
+
 QStringList PluginController::getAvailablePlugins() const
 {
     return { "Gain", "Limiter" };

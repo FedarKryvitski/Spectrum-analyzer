@@ -90,6 +90,19 @@ void Pipeline::movePlugin(int oldIndex, int newIndex)
     std::swap(plugins_[oldIndex], plugins_[newIndex]);
 }
 
+void Pipeline::togglePlugin(int index, bool enabled)
+{
+    std::lock_guard lock(mutex_);
+
+    int size = static_cast<int>(plugins_.size());
+    if (index < 0 || index >= size) {
+        return;
+    }
+
+    auto plugin = plugins_[index];
+    plugin->setEnabled(enabled);
+}
+
 void Pipeline::clear()
 {
     std::lock_guard lock(mutex_);

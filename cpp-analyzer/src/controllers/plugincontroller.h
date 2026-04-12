@@ -14,6 +14,7 @@ class PluginController : public QObject {
     void addPlugin(const QString& type);
     void removePlugin(int index);
     void movePlugin(int oldIndex, int newIndex);
+    void togglePlugin(int index, bool enabled);
 
     QStringList getAvailablePlugins() const;
 

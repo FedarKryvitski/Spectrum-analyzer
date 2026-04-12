@@ -17,7 +17,7 @@ namespace
 constexpr auto kDefaultDeviceName = "default";
 }
 
-AnalyzerForm::AnalyzerForm(QWidget *parent) : QWidget(parent), ui(new Ui::AnalyzerForm)
+AnalyzerForm::AnalyzerForm(QWidget *parent) : QWidget(parent), ui(new Ui::AnalyzerForm), inputType_(InputType::Microphone)
 {
     ui->setupUi(this);
 
@@ -29,7 +29,12 @@ AnalyzerForm::AnalyzerForm(QWidget *parent) : QWidget(parent), ui(new Ui::Analyz
 
     plotController_ = std::make_unique<Plot::PlotController>(ui->inputAmplitudePlot, ui->inputFrequencyPlot, ui->outputAmplitudePlot,
                                                              ui->outputFrequencyPlot, this);
+
     pluginsListForm_ = new PluginsListForm(this);
+    pluginsListForm_->setController(pluginController_.get());
+
+    connect(pluginsListForm_, &PluginsListForm::backRequested, this, &AnalyzerForm::onBackRequestedSlot);
+    ui->stackedWidget->addWidget(pluginsListForm_);
 
     connectUi();
     connectAudio();
@@ -50,9 +55,8 @@ void AnalyzerForm::connectUi()
     connect(ui->deviceComboBox, &QComboBox::currentTextChanged, this, &AnalyzerForm::onDeviceChangedSlot);
     connect(ui->microphoneRadioButton, &QRadioButton::toggled, this, &AnalyzerForm::onInputTypeButtonSlot);
     connect(ui->selectFileButton, &QPushButton::clicked, this, &AnalyzerForm::onFileDialogButtonSlot);
-    connect(ui->backToWelcomeButton, &QPushButton::clicked, this, &AnalyzerForm::backRequested);
-
-    ui->stackedWidget->addWidget(pluginsListForm_);
+    connect(ui->backToWelcomeButton, &QPushButton::clicked, this, &AnalyzerForm::onExitPressedSlot);
+    connect(ui->openListPageButton, &QPushButton::clicked, this, &AnalyzerForm::onOpenPluginsButtonSlot);
 }
 
 void AnalyzerForm::connectAudio()
@@ -119,7 +123,6 @@ void AnalyzerForm::onRecordingButtonToggledSlot(bool checked)
     if (checked)
     {
         const auto config = buildSessionConfig();
-
         if (!validateConfig(config))
         {
             QSignalBlocker blocker(ui->recordingButton);
@@ -225,4 +228,22 @@ void AnalyzerForm::updateControlsState(bool isRecording)
 
     ui->inputVolumeBar->setValue(0);
     ui->outputVolumeBar->setValue(0);
+}
+
+void AnalyzerForm::onOpenPluginsButtonSlot()
+{
+    ui->stackedWidget->setCurrentWidget(pluginsListForm_);
+}
+
+void AnalyzerForm::onBackRequestedSlot()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void AnalyzerForm::onExitPressedSlot()
+{
+    audioStreamManager_->stop();
+    plotController_->stop();
+
+    emit backRequested();
 }

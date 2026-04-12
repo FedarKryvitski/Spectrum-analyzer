@@ -6,8 +6,6 @@
 #include "converter/audioconverter.h"
 #include "pipeline/pipeline.h"
 
-#include <exception>
-
 AudioStreamManager::AudioStreamManager(QObject *parent) : QObject(parent)
 {
     audioPlayer_ = std::make_unique<Media::AudioPlayer>();

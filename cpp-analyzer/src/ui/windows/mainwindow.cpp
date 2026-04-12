@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->stackedWidget->addWidget(analyzerForm_);
 
     connect(ui->startAnalyzerButton, &QPushButton::clicked, this, &MainWindow::onStartClicked);
+    connect(ui->exitButton, &QPushButton::clicked, this, &MainWindow::close);
     connect(analyzerForm_, &AnalyzerForm::backRequested, this, &MainWindow::onBackFromAnalyzer);
 }
 

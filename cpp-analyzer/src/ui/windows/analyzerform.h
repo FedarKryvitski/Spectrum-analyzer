@@ -40,6 +40,10 @@ class AnalyzerForm : public QWidget
     void onInputVolumeChangedSlot(double volume);
     void onOutputVolumeChangedSlot(double volume);
     void onStreamFinishedSlot();
+    void onOpenPluginsButtonSlot();
+
+    void onExitPressedSlot();
+    void onBackRequestedSlot();
 
   private:
     void connectUi();

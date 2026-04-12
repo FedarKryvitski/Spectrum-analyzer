@@ -2,6 +2,7 @@
 #include "ui_pluginslistform.h"
 
 #include "widgets/pluginitemwidget.h"
+#include "widgets/pluginselector.h"
 #include "controllers/plugincontroller.h"
 
 PluginsListForm::PluginsListForm(QWidget *parent)
@@ -42,21 +43,25 @@ void PluginsListForm::updateListView()
 
     for (int i = 0; i < plugins.size(); ++i) {
         auto plugin = plugins[i];
-        auto *item = new PluginItemWidget(QString::fromStdString(plugin->getName()), this);
+        auto *item = new PluginItemWidget(plugin.get(), this);
 
         connect(item, &PluginItemWidget::clicked, this, [this, plugin]() {
 
         });
 
-        connect(item, &PluginItemWidget::removeRequested, this, [this, i]() {
+        connect(item, &PluginItemWidget::toggled, this, [this, i](PluginItemWidget* item, bool enabled) {
+            controller_->togglePlugin(i, enabled);
+        });
+
+        connect(item, &PluginItemWidget::removeRequested, this, [this, i](PluginItemWidget* item) {
             controller_->removePlugin(i);
         });
 
-        connect(item, &PluginItemWidget::moveUpRequested, this, [this, i]() {
+        connect(item, &PluginItemWidget::moveUpRequested, this, [this, i](PluginItemWidget* item) {
             controller_->movePlugin(i, i - 1);
         });
 
-        connect(item, &PluginItemWidget::moveDownRequested, this, [this, i]() {
+        connect(item, &PluginItemWidget::moveDownRequested, this, [this, i](PluginItemWidget* item) {
             controller_->movePlugin(i, i + 1);
         });
 
@@ -88,5 +93,17 @@ void PluginsListForm::onAddItemSlot()
     if (!controller_)
         return;
 
-    controller_->addPlugin("Gain");
+    PluginSelector selector(this);
+
+    QMap<QString, QString> available;
+    for (auto& name : controller_->getAvailablePlugins()) {
+        available.insert(name, ":/icons/default_fx.png");
+    }
+    selector.setPlugins(available);
+
+    connect(&selector, &PluginSelector::pluginSelected, this, [this](const QString& name){
+        controller_->addPlugin(name);
+    });
+
+    selector.exec();
 }

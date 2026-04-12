@@ -22,6 +22,7 @@ class Pipeline
     void addPlugin(std::shared_ptr<IPlugin> plugin);
     void removePlugin(int index);
     void movePlugin(int oldIndex, int newIndex);
+    void togglePlugin(int index, bool enabled);
     void clear();
 
     std::vector<std::shared_ptr<IPlugin>> getPlugins() const;
