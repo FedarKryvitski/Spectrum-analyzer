@@ -1,12 +1,15 @@
 #include "plotcontroller.h"
 
+#include "widgets/amplitudeplot.h"
+#include "widgets/frequencyplot.h"
+
 namespace
 {
 using namespace std::chrono_literals;
 
 constexpr auto kFPS = 60;
-constexpr auto kPlotUpdateInterval = 1s / kFPS;
-} // namespace
+constexpr auto kPlotUpdateInterval = 1000ms / kFPS;
+}
 
 namespace Plot
 {
@@ -15,10 +18,10 @@ PlotController::PlotController(QCustomPlot *inputAmplitudeWidget, QCustomPlot *i
                                QCustomPlot *outputAmplitudeWidget, QCustomPlot *outputFrequencyWidget, QObject *parent)
     : QObject(parent)
 {
-    amplitudePlot_ = std::make_unique<AmplitudePlot>(inputAmplitudeWidget);
-    frequencyPlot_ = std::make_unique<FrequencyPlot>(inputFrequencyWidget);
-    amplitudePlot2_ = std::make_unique<AmplitudePlot>(outputAmplitudeWidget);
-    frequencyPlot2_ = std::make_unique<FrequencyPlot>(outputFrequencyWidget);
+    inputAmplitudePlot_ = std::make_unique<AmplitudePlot>(inputAmplitudeWidget);
+    inputFrequencyPlot_ = std::make_unique<FrequencyPlot>(inputFrequencyWidget);
+    outputAmplitudePlot_ = std::make_unique<AmplitudePlot>(outputAmplitudeWidget);
+    outputFrequencyPlot_ = std::make_unique<FrequencyPlot>(outputFrequencyWidget);
 
     connect(&plotTimer_, &QTimer::timeout, this, &PlotController::updatePlots);
 }
@@ -39,38 +42,37 @@ void PlotController::stop()
 
 void PlotController::clear()
 {
-    amplitudePlot_->clear();
-    amplitudePlot2_->clear();
-    frequencyPlot_->clear();
-    frequencyPlot2_->clear();
+    auto plots = { inputAmplitudePlot_.get(), outputAmplitudePlot_.get(),
+                  inputFrequencyPlot_.get(), outputFrequencyPlot_.get() };
 
-    amplitudePlot_->update();
-    amplitudePlot2_->update();
-    frequencyPlot_->update();
-    frequencyPlot2_->update();
+    std::ranges::for_each(plots, [](auto* plot) {
+        plot->clear();
+        plot->update();
+    });
 }
 
-void PlotController::onFrameReady(const std::vector<double> &input, const std::vector<double> &output)
+void PlotController::onFrameReady(std::vector<double> input, std::vector<double> output)
 {
-    latestFrame_ = PlotFrame{input, output};
+    latestFrame_ = PlotFrame{std::move(input), std::move(output)};
 }
 
 void PlotController::updatePlots()
 {
-    if (!latestFrame_.has_value())
+    if (!latestFrame_)
         return;
 
-    amplitudePlot_->addData(latestFrame_->input);
-    amplitudePlot2_->addData(latestFrame_->output);
-    frequencyPlot_->addData(latestFrame_->input);
-    frequencyPlot2_->addData(latestFrame_->output);
-
-    amplitudePlot_->update();
-    amplitudePlot2_->update();
-    frequencyPlot_->update();
-    frequencyPlot2_->update();
-
+    PlotFrame frame = std::move(*latestFrame_);
     latestFrame_.reset();
+
+    inputAmplitudePlot_->addData(frame.input);
+    outputAmplitudePlot_->addData(frame.output);
+    inputFrequencyPlot_->addData(frame.input);
+    outputFrequencyPlot_->addData(frame.output);
+
+    inputAmplitudePlot_->update();
+    outputAmplitudePlot_->update();
+    inputFrequencyPlot_->update();
+    outputFrequencyPlot_->update();
 }
 
 } // namespace Plot

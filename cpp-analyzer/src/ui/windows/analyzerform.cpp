@@ -160,6 +160,8 @@ void AnalyzerForm::onInputTypeButtonSlot(bool checked)
     {
         ui->recordingButton->setEnabled(!selectedFilePath_.isEmpty());
     }
+
+    plotController_->clear();
 }
 
 void AnalyzerForm::onFileDialogButtonSlot()

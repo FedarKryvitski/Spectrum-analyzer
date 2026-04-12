@@ -6,111 +6,109 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>622</width>
-    <height>332</height>
+    <width>800</width>
+    <height>450</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="rootLayout">
    <item>
     <layout class="QHBoxLayout" name="topHorizontalLayout">
      <item>
-      <widget class="QWidget" name="plotsContainer">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding"/>
-       </property>
-       <layout class="QGridLayout" name="plotsLayout">
-        <item row="0" column="0">
-         <widget class="QCustomPlot" name="inputAmplitudePlot"/>
-        </item>
-        <item row="1" column="0">
-         <widget class="QCustomPlot" name="inputFrequencyPlot"/>
-        </item>
-        <item row="0" column="1">
-         <widget class="QCustomPlot" name="outputAmplitudePlot"/>
-        </item>
-        <item row="1" column="1">
-         <widget class="QCustomPlot" name="outputFrequencyPlot"/>
-        </item>
-       </layout>
-      </widget>
+      <layout class="QGridLayout" name="plotsLayout">
+       <item row="0" column="0">
+        <widget class="QCustomPlot" name="inputAmplitudePlot" native="true"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCustomPlot" name="inputFrequencyPlot" native="true"/>
+       </item>
+       <item row="0" column="1">
+        <widget class="QCustomPlot" name="outputAmplitudePlot" native="true"/>
+       </item>
+       <item row="1" column="1">
+        <widget class="QCustomPlot" name="outputFrequencyPlot" native="true"/>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QWidget" name="volumeContainer">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Expanding"/>
-       </property>
-       <layout class="QHBoxLayout" name="volumeLayout">
-        <item>
-         <layout class="QVBoxLayout" name="inputVolumeLayout">
-          <item>
-           <widget class="QLabel" name="inputVolumeLabel">
-            <property name="text">
-             <string>Input</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QProgressBar" name="inputVolumeBar">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="textVisible">
-             <bool>false</bool>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>40</width>
-              <height>250</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" name="outputVolumeLayout">
-          <item>
-           <widget class="QLabel" name="outputVolumeLabel">
-            <property name="text">
-             <string>Output</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QProgressBar" name="outputVolumeBar">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="textVisible">
-             <bool>false</bool>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>40</width>
-              <height>250</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
+      <layout class="QHBoxLayout" name="volumeLayout">
+       <item>
+        <layout class="QVBoxLayout" name="inputVolumeLayout">
+         <item>
+          <widget class="QLabel" name="inputVolumeLabel">
+           <property name="text">
+            <string>Input</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QProgressBar" name="inputVolumeBar">
+           <property name="minimumSize">
+            <size>
+             <width>40</width>
+             <height>250</height>
+            </size>
+           </property>
+           <property name="textVisible">
+            <bool>false</bool>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Orientation::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="outputVolumeLayout">
+         <item>
+          <widget class="QLabel" name="outputVolumeLabel">
+           <property name="text">
+            <string>Output</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QProgressBar" name="outputVolumeBar">
+           <property name="minimumSize">
+            <size>
+             <width>40</width>
+             <height>250</height>
+            </size>
+           </property>
+           <property name="textVisible">
+            <bool>false</bool>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Orientation::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="controlsLayout">
+     <property name="spacing">
+      <number>15</number> </property>
+     <property name="topMargin">
+      <number>10</number>
+     </property>
      <item>
       <widget class="QPushButton" name="recordingButton">
-       <property name="enabled">
-        <bool>false</bool>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>40</height>
+        </size>
        </property>
        <property name="text">
         <string>Start</string>
@@ -121,49 +119,88 @@
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="microphoneRadioButton">
-       <property name="text">
-        <string>Microphone</string>
+      <layout class="QVBoxLayout" name="radioButtonsVerticalLayout">
+       <property name="spacing">
+        <number>2</number>
        </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="fileRadioButton">
-       <property name="text">
-        <string>File</string>
-       </property>
-      </widget>
+       <item>
+        <widget class="QRadioButton" name="microphoneRadioButton">
+         <property name="text">
+          <string>Microphone</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="fileRadioButton">
+         <property name="text">
+          <string>File</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QComboBox" name="deviceComboBox">
+       <property name="minimumSize">
+        <size>
+         <width>200</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="placeholderText">
         <string>Select audio input...</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="selectFileButton">
-       <property name="text">
-        <string>Select file</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="selectedFileLabel">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="fileSelectionLayout">
+       <item>
+        <widget class="QPushButton" name="selectFileButton">
+         <property name="text">
+          <string>Select file</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="selectedFileLabel">
+         <property name="text">
+          <string>no file selected</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">font-size: 10px; color: gray;</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QPushButton" name="openListPageButton">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>40</height>
+        </size>
+       </property>
        <property name="text">
         <string>Open list</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>

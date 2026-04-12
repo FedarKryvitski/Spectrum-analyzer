@@ -20,10 +20,11 @@ class PluginsListForm : public QWidget
 
   private slots:
     void onAddItemSlot();
-    void onRemoveItemSlot();
 
   private:
     void init();
+    void addNewPlugin(const QString &pluginName);
+    void showPluginWidget(QWidget* widget);
 
   private:
     Ui::PluginsListForm *ui;

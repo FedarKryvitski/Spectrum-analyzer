@@ -68,12 +68,13 @@ void AmplitudePlot::addData(Data inputData)
 void AmplitudePlot::update()
 {
     plot_->graph(0)->setData(axisX_, axisY_, true);
-    plot_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+    plot_->replot();
 }
 
 void AmplitudePlot::clear()
 {
     std::fill(axisY_.begin(), axisY_.end(), 0);
+    update();
 }
 
 } // namespace Plot

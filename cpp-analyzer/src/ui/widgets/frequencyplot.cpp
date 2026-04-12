@@ -152,7 +152,7 @@ void FrequencyPlot::update()
     }
 
     plot_->graph(0)->setData(xData, yData);
-    plot_->replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
+    plot_->replot();
 }
 
 void FrequencyPlot::clear()

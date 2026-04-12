@@ -1,7 +1,6 @@
 #pragma once
 
-#include "widgets/amplitudeplot.h"
-#include "widgets/frequencyplot.h"
+#include "widgets/plot.h"
 
 #include <QObject>
 #include <QTimer>
@@ -25,7 +24,7 @@ class PlotController : public QObject
     void clear();
 
   public slots:
-    void onFrameReady(const std::vector<double> &input, const std::vector<double> &output);
+    void onFrameReady(std::vector<double> input, std::vector<double> output);
 
   private slots:
     void updatePlots();
@@ -38,10 +37,10 @@ class PlotController : public QObject
     };
 
   private:
-    std::unique_ptr<AmplitudePlot> amplitudePlot_{nullptr};
-    std::unique_ptr<FrequencyPlot> frequencyPlot_{nullptr};
-    std::unique_ptr<AmplitudePlot> amplitudePlot2_{nullptr};
-    std::unique_ptr<FrequencyPlot> frequencyPlot2_{nullptr};
+    std::unique_ptr<IPlot> inputAmplitudePlot_{nullptr};
+    std::unique_ptr<IPlot> inputFrequencyPlot_{nullptr};
+    std::unique_ptr<IPlot> outputAmplitudePlot_{nullptr};
+    std::unique_ptr<IPlot> outputFrequencyPlot_{nullptr};
 
     QTimer plotTimer_;
     std::optional<PlotFrame> latestFrame_;
