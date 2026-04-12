@@ -17,6 +17,8 @@ class IPlugin
     {
     }
 
+    virtual std::string getName() const = 0;
+
     virtual void setEnabled(const bool enabled)
     {
         enabled_ = enabled;

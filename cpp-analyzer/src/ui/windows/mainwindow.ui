@@ -6,37 +6,41 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1504</width>
-    <height>902</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Audio Analyzer</string>
-  </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QStackedWidget" name="stackedWidget">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>1504</width>
-      <height>879</height>
-     </rect>
-    </property>
-   </widget>
+   <layout class="QVBoxLayout" name="mainLayout">
+    <item>
+     <widget class="QStackedWidget" name="stackedWidget">
+      <widget class="QWidget" name="welcomePage">
+       <layout class="QVBoxLayout" name="welcomeLayout">
+        <item>
+         <spacer name="verticalSpacer_1">
+          <property name="orientation"><enum>Qt::Vertical</enum></property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="startAnalyzerButton">
+          <property name="text">
+           <string>Запустить Анализатор</string>
+          </property>
+          <property name="minimumSize">
+           <size><width>200</width><height>50</height></size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_2">
+          <property name="orientation"><enum>Qt::Vertical</enum></property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1504</width>
-     <height>23</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
- <connections/>
 </ui>

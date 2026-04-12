@@ -2,16 +2,13 @@
 #include "ui_pluginslistform.h"
 
 #include "widgets/pluginitemwidget.h"
+#include "controllers/plugincontroller.h"
 
-// TODO refactoring
-#include "effects/gainer.h"
-#include "widgets/gainerwidget.h"
-
-PluginsListForm::PluginsListForm(QWidget *parent) : QWidget(parent), ui(new Ui::PluginsListForm)
+PluginsListForm::PluginsListForm(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::PluginsListForm)
 {
     ui->setupUi(this);
-
-    init();
 
     connect(ui->addItemButton, &QPushButton::clicked, this, &PluginsListForm::onAddItemSlot);
     connect(ui->backToAnalyzerButton, &QPushButton::clicked, this, &PluginsListForm::backRequested);
@@ -22,54 +19,63 @@ PluginsListForm::~PluginsListForm()
     delete ui;
 }
 
-void PluginsListForm::init()
+void PluginsListForm::setController(PluginController* controller)
 {
-
+    controller_ = controller;
+    connect(controller_, &PluginController::pipelineChanged, this, &PluginsListForm::updateListView);
+    updateListView();
 }
 
-void PluginsListForm::addNewPlugin(const QString &pluginName)
+void PluginsListForm::updateListView()
 {
-    auto *item = new PluginItemWidget(pluginName, this);
+    if (!controller_) return;
 
-    connect(item, &PluginItemWidget::clicked, this,
-        [this](PluginItemWidget* ptr) {
-
-        qDebug() << "Open plugin UI for" << ptr->getName();
-        auto* plugin = new Plugins::Gainer();
-        auto* widget = new GainerWidget(plugin, ui->pagePluginView);
-
-        showPluginWidget(widget);
-    });
-
-    connect(item, &PluginItemWidget::removeRequested, this, [this](PluginItemWidget* ptr){
-        ui->pluginsContainer->removeWidget(ptr);
-        ptr->deleteLater();
-    });
-
-    connect(item, &PluginItemWidget::moveUpRequested, this, [this](PluginItemWidget* ptr){
-        int index = ui->pluginsContainer->indexOf(ptr);
-        if (index > 0) {
-            ui->pluginsContainer->removeWidget(ptr);
-            ui->pluginsContainer->insertWidget(index - 1, ptr);
+    QLayoutItem* child;
+    while ((child = ui->pluginsContainer->takeAt(0)) != nullptr) {
+        if (child->widget()) {
+            child->widget()->deleteLater();
         }
-    });
+        delete child;
+    }
 
-    connect(item, &PluginItemWidget::moveDownRequested, this, [this](PluginItemWidget* ptr){
-        int index = ui->pluginsContainer->indexOf(ptr);
-        if (index < ui->pluginsContainer->count() - 2) {
-            ui->pluginsContainer->removeWidget(ptr);
-            ui->pluginsContainer->insertWidget(index + 1, ptr);
-        }
-    });
+    auto plugins = controller_->getPipeline()->getPlugins();
 
-    ui->pluginsContainer->insertWidget(ui->pluginsContainer->count() - 1, item);
+    for (int i = 0; i < plugins.size(); ++i) {
+        auto plugin = plugins[i];
+        auto *item = new PluginItemWidget(QString::fromStdString(plugin->getName()), this);
+
+        connect(item, &PluginItemWidget::clicked, this, [this, plugin]() {
+
+        });
+
+        connect(item, &PluginItemWidget::removeRequested, this, [this, i]() {
+            controller_->removePlugin(i);
+        });
+
+        connect(item, &PluginItemWidget::moveUpRequested, this, [this, i]() {
+            controller_->movePlugin(i, i - 1);
+        });
+
+        connect(item, &PluginItemWidget::moveDownRequested, this, [this, i]() {
+            controller_->movePlugin(i, i + 1);
+        });
+
+        ui->pluginsContainer->addWidget(item);
+    }
+
+    ui->pluginsContainer->addStretch();
 }
 
 void PluginsListForm::showPluginWidget(QWidget* widget)
 {
+    if (!widget)
+        return;
+
     QLayoutItem* item;
     while ((item = ui->pluginViewLayout->takeAt(0)) != nullptr) {
-        delete item->widget();
+        if (item->widget())
+            item->widget()->deleteLater();
+
         delete item;
     }
 
@@ -79,7 +85,8 @@ void PluginsListForm::showPluginWidget(QWidget* widget)
 
 void PluginsListForm::onAddItemSlot()
 {
-    addNewPlugin("CCCC");
-    addNewPlugin("BBBB");
-    addNewPlugin("AAAAA");
+    if (!controller_)
+        return;
+
+    controller_->addPlugin("Gain");
 }

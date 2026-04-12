@@ -20,13 +20,12 @@ class MainWindow : public QMainWindow
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-  private:
-    void init();
-    void connectPages();
+  private slots:
+    void onStartClicked();
+    void onBackFromAnalyzer();
 
   private:
     Ui::MainWindow *ui;
 
-    AnalyzerForm *analyzerForm_;
-    PluginsListForm *pluginsListForm_;
+    AnalyzerForm *analyzerForm_{ nullptr };
 };

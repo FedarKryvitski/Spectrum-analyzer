@@ -18,6 +18,8 @@ class AnalyzerForm;
 
 enum class InputType;
 struct AudioSessionConfig;
+class PluginsListForm;
+class PluginController;
 
 class AnalyzerForm : public QWidget
 {
@@ -28,7 +30,7 @@ class AnalyzerForm : public QWidget
     ~AnalyzerForm();
 
   signals:
-    void openListRequested();
+    void backRequested();
 
   private slots:
     void onRecordingButtonToggledSlot(bool checked);
@@ -49,6 +51,9 @@ class AnalyzerForm : public QWidget
 
   private:
     Ui::AnalyzerForm *ui;
+    PluginsListForm *pluginsListForm_;
+
+    std::unique_ptr<PluginController> pluginController_;
     std::unique_ptr<AudioStreamManager> audioStreamManager_;
     std::unique_ptr<Plot::PlotController> plotController_;
 

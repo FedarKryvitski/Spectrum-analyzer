@@ -3,7 +3,6 @@
 #include "ui_gainerwidget.h"
 
 #include "widgets/ipluginwidget.h"
-#include "effects/gainer.h"
 
 class GainerWidget : public IPluginWidget
 {

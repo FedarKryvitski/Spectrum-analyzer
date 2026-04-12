@@ -20,12 +20,12 @@ AudioStreamManager::~AudioStreamManager()
     stop();
 }
 
-void AudioStreamManager::start(const AudioSessionConfig &config)
+void AudioStreamManager::start(const AudioSessionConfig &config, Plugins::Pipeline* pipeline)
 {
     if (isRunning_)
         return;
 
-    workerThread_ = std::jthread([this, config](std::stop_token stopToken) { run(config, stopToken); });
+    workerThread_ = std::jthread([this, pipeline, config](std::stop_token stopToken) { run(config, pipeline, stopToken); });
 }
 
 void AudioStreamManager::stop()
@@ -47,43 +47,29 @@ bool AudioStreamManager::isRunning() const
     return isRunning_;
 }
 
-void AudioStreamManager::run(AudioSessionConfig config, std::stop_token stopToken)
+void AudioStreamManager::run(AudioSessionConfig config, Plugins::Pipeline* pipeline, std::stop_token stopToken)
 {
-    Plugins::Pipeline pipeline;
-
     auto &recorder = config.inputType == InputType::Microphone ? audioDeviceRecorder_ : audioFileRecorder_;
 
-    try
+    recorder->open(config.source.toStdString());
+    audioPlayer_->start();
+    isRunning_ = true;
+
+    while (!stopToken.stop_requested() && isRunning_)
     {
-        recorder->open(config.source.toStdString());
+        auto data = recorder->read();
+        if (data.empty())
+            continue;
 
-        audioPlayer_->start();
-        isRunning_ = true;
+        auto inputData = AudioConverter::toDoubleVector(data);
+        auto outputData = pipeline->process(inputData);
+        auto outputIntData = AudioConverter::toIntVector(outputData);
 
-        while (!stopToken.stop_requested() && isRunning_)
-        {
-            auto data = recorder->read();
-            if (data.empty())
-                continue;
+        emit frameReady(inputData, outputData);
+        emit inputVolumeChanged(pipeline->getInputVolume());
+        emit outputVolumeChanged(pipeline->getOutputVolume());
 
-            auto inputData = AudioConverter::toDoubleVector(data);
-            auto outputData = pipeline.process(inputData);
-            auto outputIntData = AudioConverter::toIntVector(outputData);
-
-            emit frameReady(inputData, outputData);
-            emit inputVolumeChanged(pipeline.getInputVolume());
-            emit outputVolumeChanged(pipeline.getOutputVolume());
-
-            audioPlayer_->write(outputIntData.data(), outputIntData.size());
-        }
-    }
-    catch (const std::exception &e)
-    {
-        emit errorOccurred(QString::fromStdString(e.what()));
-    }
-    catch (...)
-    {
-        emit errorOccurred("Unknown audio processing error.");
+        audioPlayer_->write(outputIntData.data(), outputIntData.size());
     }
 
     recorder->close();

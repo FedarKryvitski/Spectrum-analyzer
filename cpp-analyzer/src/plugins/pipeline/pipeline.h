@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <vector>
+#include <mutex>
 
 namespace Plugins
 {
@@ -18,10 +19,18 @@ class Pipeline
 
     Buffer process(Buffer input);
 
+    void addPlugin(std::shared_ptr<IPlugin> plugin);
+    void removePlugin(int index);
+    void movePlugin(int oldIndex, int newIndex);
+    void clear();
+
+    std::vector<std::shared_ptr<IPlugin>> getPlugins() const;
+
     double getInputVolume() const;
     double getOutputVolume() const;
 
   private:
+    mutable std::mutex mutex_;
     std::vector<std::shared_ptr<IPlugin>> plugins_;
 
     PipelineSink sink_;

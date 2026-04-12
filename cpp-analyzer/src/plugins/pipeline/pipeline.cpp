@@ -1,10 +1,6 @@
 #include "pipeline/pipeline.h"
-#include "effects/gainer.h"
-#include "effects/limiter.h"
 
 #include <algorithm>
-
-#include <QDebug>
 
 namespace Plugins
 {
@@ -41,34 +37,69 @@ static double calculateVolume(const Buffer &buffer)
 
 } // namespace
 
-Pipeline::Pipeline() noexcept
-{
-    // auto gainer = std::make_shared<Gainer>();
-    // gainer->setGainLevel(2.0);
-
-    // auto limiter = std::make_shared<Limiter>();
-    // limiter->setLimitLevel(0.5);
-
-    // plugins_.push_back(gainer);
-    // plugins_.push_back(limiter);
-}
+Pipeline::Pipeline() noexcept {}
 
 Buffer Pipeline::process(Buffer input)
 {
     inputVolume_ = calculateVolume(input);
     ComplexBuffer complexBuffer = source_.write(std::move(input));
 
-    std::ranges::for_each(plugins_.begin(), plugins_.end(), [&](std::shared_ptr<IPlugin> &plugin) {
-        if (!plugin->isEnabled())
-            return;
+    {
+        std::lock_guard lock(mutex_);
 
-        complexBuffer = plugin->process(std::move(complexBuffer));
-    });
+        for (auto& plugin : plugins_) {
+            if (plugin && plugin->isEnabled()) {
+                complexBuffer = plugin->process(std::move(complexBuffer));
+            }
+        }
+    }
 
     auto buffer = sink_.read(complexBuffer);
     outputVolume_ = calculateVolume(buffer);
 
     return buffer;
+}
+
+void Pipeline::addPlugin(std::shared_ptr<IPlugin> plugin)
+{
+    if (!plugin)
+        return;
+
+    std::lock_guard lock(mutex_);
+    plugins_.push_back(std::move(plugin));
+}
+
+void Pipeline::removePlugin(int index)
+{
+    std::lock_guard lock(mutex_);
+
+    if (index >= 0 && index < static_cast<int>(plugins_.size())) {
+        plugins_.erase(plugins_.begin() + index);
+    }
+}
+
+void Pipeline::movePlugin(int oldIndex, int newIndex)
+{
+    std::lock_guard lock(mutex_);
+
+    int size = static_cast<int>(plugins_.size());
+    if (oldIndex < 0 || oldIndex >= size || newIndex < 0 || newIndex >= size) {
+        return;
+    }
+
+    std::swap(plugins_[oldIndex], plugins_[newIndex]);
+}
+
+void Pipeline::clear()
+{
+    std::lock_guard lock(mutex_);
+    plugins_.clear();
+}
+
+std::vector<std::shared_ptr<IPlugin>> Pipeline::getPlugins() const
+{
+    std::lock_guard lock(mutex_);
+    return plugins_;
 }
 
 double Pipeline::getInputVolume() const

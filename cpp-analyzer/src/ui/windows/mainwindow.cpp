@@ -2,21 +2,17 @@
 #include "ui_mainwindow.h"
 
 #include "analyzerform.h"
-#include "pluginslistform.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), analyzerForm_(nullptr), pluginsListForm_(nullptr)
+    : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
     analyzerForm_ = new AnalyzerForm(this);
-    pluginsListForm_ = new PluginsListForm(this);
-
     ui->stackedWidget->addWidget(analyzerForm_);
-    ui->stackedWidget->addWidget(pluginsListForm_);
 
-    init();
-    connectPages();
+    connect(ui->startAnalyzerButton, &QPushButton::clicked, this, &MainWindow::onStartClicked);
+    connect(analyzerForm_, &AnalyzerForm::backRequested, this, &MainWindow::onBackFromAnalyzer);
 }
 
 MainWindow::~MainWindow()
@@ -24,16 +20,12 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::init()
+void MainWindow::onStartClicked()
 {
     ui->stackedWidget->setCurrentWidget(analyzerForm_);
 }
 
-void MainWindow::connectPages()
+void MainWindow::onBackFromAnalyzer()
 {
-    connect(analyzerForm_, &AnalyzerForm::openListRequested, this,
-            [this]() { ui->stackedWidget->setCurrentWidget(pluginsListForm_); });
-
-    connect(pluginsListForm_, &PluginsListForm::backRequested, this,
-            [this]() { ui->stackedWidget->setCurrentWidget(analyzerForm_); });
+    ui->stackedWidget->setCurrentIndex(0);
 }

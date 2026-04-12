@@ -1,7 +1,9 @@
 #include "analyzerform.h"
 #include "ui_analyzerform.h"
+#include "pluginslistform.h"
 
 #include "controllers/plotcontroller.h"
+#include "controllers/plugincontroller.h"
 #include "manager/audiostreammanager.h"
 
 #include <QAbstractItemView>
@@ -19,10 +21,15 @@ AnalyzerForm::AnalyzerForm(QWidget *parent) : QWidget(parent), ui(new Ui::Analyz
 {
     ui->setupUi(this);
 
+    pluginController_ = std::make_unique<PluginController>(this);
+
     audioStreamManager_ = std::make_unique<AudioStreamManager>(this);
+
+    pluginController_ = std::make_unique<PluginController>(this);
 
     plotController_ = std::make_unique<Plot::PlotController>(ui->inputAmplitudePlot, ui->inputFrequencyPlot, ui->outputAmplitudePlot,
                                                              ui->outputFrequencyPlot, this);
+    pluginsListForm_ = new PluginsListForm(this);
 
     connectUi();
     connectAudio();
@@ -43,7 +50,9 @@ void AnalyzerForm::connectUi()
     connect(ui->deviceComboBox, &QComboBox::currentTextChanged, this, &AnalyzerForm::onDeviceChangedSlot);
     connect(ui->microphoneRadioButton, &QRadioButton::toggled, this, &AnalyzerForm::onInputTypeButtonSlot);
     connect(ui->selectFileButton, &QPushButton::clicked, this, &AnalyzerForm::onFileDialogButtonSlot);
-    connect(ui->openListPageButton, &QPushButton::clicked, this, &AnalyzerForm::openListRequested);
+    connect(ui->backToWelcomeButton, &QPushButton::clicked, this, &AnalyzerForm::backRequested);
+
+    ui->stackedWidget->addWidget(pluginsListForm_);
 }
 
 void AnalyzerForm::connectAudio()
@@ -119,7 +128,7 @@ void AnalyzerForm::onRecordingButtonToggledSlot(bool checked)
         }
 
         plotController_->start();
-        audioStreamManager_->start(config);
+        audioStreamManager_->start(config, pluginController_->getPipeline());
 
         ui->recordingButton->setText("Stop");
     }
