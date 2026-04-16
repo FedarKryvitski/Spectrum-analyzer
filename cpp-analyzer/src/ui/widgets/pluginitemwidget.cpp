@@ -5,9 +5,8 @@
 
 #include <QMouseEvent>
 
-PluginItemWidget::PluginItemWidget(Plugins::IPlugin* plugin, QWidget *parent) :
-      QWidget(parent),
-      ui(new Ui::PluginItemWidget)
+PluginItemWidget::PluginItemWidget(Plugins::IPlugin *plugin, QWidget *parent)
+    : QWidget(parent), ui(new Ui::PluginItemWidget)
 {
     ui->setupUi(this);
     ui->nameLabel->setText(QString::fromStdString(plugin->getName()));
@@ -20,22 +19,16 @@ PluginItemWidget::PluginItemWidget(Plugins::IPlugin* plugin, QWidget *parent) :
         setPluginEnabled(enabled);
     }
 
-    connect(ui->powerButton, &QPushButton::toggled, this, [this](bool checked) {
-        setPluginEnabled(checked);
-        emit toggled(this, checked);
+    connect(ui->powerButton, &QPushButton::toggled, this, [this](bool enabled) {
+        setPluginEnabled(enabled);
+        emit enabledToggled(this, enabled);
     });
 
-    connect(ui->upButton, &QPushButton::clicked, this, [this]() {
-        emit moveUpRequested(this);
-    });
+    connect(ui->upButton, &QPushButton::clicked, this, [this]() { emit moveUpRequested(this); });
 
-    connect(ui->downButton, &QPushButton::clicked, this, [this]() {
-        emit moveDownRequested(this);
-    });
+    connect(ui->downButton, &QPushButton::clicked, this, [this]() { emit moveDownRequested(this); });
 
-    connect(ui->removeButton, &QPushButton::clicked, this, [this]() {
-        emit removeRequested(this);
-    });
+    connect(ui->removeButton, &QPushButton::clicked, this, [this]() { emit removeRequested(this); });
 }
 
 PluginItemWidget::~PluginItemWidget()
@@ -55,7 +48,8 @@ bool PluginItemWidget::isPluginEnabled() const
 
 void PluginItemWidget::mousePressEvent(QMouseEvent *event)
 {
-    emit clicked(this);
+    emit pluginClicked(this);
+
     QWidget::mousePressEvent(event);
 }
 

@@ -2,11 +2,13 @@
 
 #include <QWidget>
 
-namespace Ui {
+namespace Ui
+{
 class PluginItemWidget;
 }
 
-namespace Plugins {
+namespace Plugins
+{
 class IPlugin;
 }
 
@@ -15,18 +17,18 @@ class PluginItemWidget : public QWidget
     Q_OBJECT
 
   public:
-    explicit PluginItemWidget(Plugins::IPlugin* plugin, QWidget *parent = nullptr);
+    explicit PluginItemWidget(Plugins::IPlugin *plugin, QWidget *parent = nullptr);
     ~PluginItemWidget();
 
     QString getName() const;
     bool isPluginEnabled() const;
 
   signals:
-    void moveUpRequested(PluginItemWidget* item);
-    void moveDownRequested(PluginItemWidget* item);
-    void removeRequested(PluginItemWidget* item);
-    void toggled(PluginItemWidget* item, bool checked);
-    void clicked(PluginItemWidget* item);
+    void moveUpRequested(PluginItemWidget *item);
+    void moveDownRequested(PluginItemWidget *item);
+    void removeRequested(PluginItemWidget *item);
+    void enabledToggled(PluginItemWidget *item, bool enabled);
+    void pluginClicked(PluginItemWidget *item);
 
   protected:
     void mousePressEvent(QMouseEvent *event) override;

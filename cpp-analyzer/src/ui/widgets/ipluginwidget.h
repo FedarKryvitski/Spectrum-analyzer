@@ -12,8 +12,9 @@ class IPluginWidget : public QWidget
     Q_OBJECT
 
   public:
-    explicit IPluginWidget(Plugins::IPlugin* plugin, QWidget* parent = nullptr)
-        : QWidget(parent), plugin_(plugin) {}
+    explicit IPluginWidget(Plugins::IPlugin *plugin, QWidget *parent = nullptr) : QWidget(parent), plugin_(plugin)
+    {
+    }
 
     virtual ~IPluginWidget() = default;
 
@@ -21,5 +22,5 @@ class IPluginWidget : public QWidget
     virtual void applyToPlugin() = 0;
 
   protected:
-    Plugins::IPlugin* plugin_;
+    Plugins::IPlugin *plugin_;
 };

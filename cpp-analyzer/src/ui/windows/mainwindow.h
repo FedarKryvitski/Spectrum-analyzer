@@ -27,5 +27,5 @@ class MainWindow : public QMainWindow
   private:
     Ui::MainWindow *ui;
 
-    AnalyzerForm *analyzerForm_{ nullptr };
+    AnalyzerForm *analyzerForm_{nullptr};
 };

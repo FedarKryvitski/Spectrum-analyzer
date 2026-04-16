@@ -23,7 +23,10 @@ class Limiter : public IPlugin
         return limitLevel_;
     }
 
-    std::string getName() const override { return "Limiter"; }
+    std::string getName() const override
+    {
+        return "Limiter";
+    }
 
     ComplexBuffer process(ComplexBuffer buffer) override;
 

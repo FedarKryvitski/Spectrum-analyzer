@@ -1,9 +1,9 @@
 #pragma once
 
 #include "interfaces/iaudiosource.h"
+#include "pipeline/pipeline.h"
 #include "players/audioplayer.h"
 #include "session/audiosessionconfig.h"
-#include "pipeline/pipeline.h"
 
 #include <QObject>
 #include <atomic>
@@ -19,7 +19,7 @@ class AudioStreamManager : public QObject
     explicit AudioStreamManager(QObject *parent = nullptr);
     ~AudioStreamManager();
 
-    void start(const AudioSessionConfig &config, Plugins::Pipeline* pipeline);
+    void start(const AudioSessionConfig &config, Plugins::Pipeline *pipeline);
     void stop();
     bool isRunning() const;
 
@@ -31,7 +31,7 @@ class AudioStreamManager : public QObject
     void finished();
 
   private:
-    void run(AudioSessionConfig config, Plugins::Pipeline* pipeline, std::stop_token stopToken);
+    void run(AudioSessionConfig config, Plugins::Pipeline *pipeline, std::stop_token stopToken);
 
   private:
     std::atomic_bool isRunning_{false};

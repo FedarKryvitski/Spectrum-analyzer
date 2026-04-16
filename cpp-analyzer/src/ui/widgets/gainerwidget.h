@@ -9,12 +9,12 @@ class GainerWidget : public IPluginWidget
     Q_OBJECT
 
   public:
-    explicit GainerWidget(Plugins::IPlugin* plugin, QWidget* parent = nullptr);
+    explicit GainerWidget(Plugins::IPlugin *plugin, QWidget *parent = nullptr);
     ~GainerWidget() override;
 
-    void updateFromPlugin() override {}
-    void applyToPlugin() override {}
+    void updateFromPlugin() override;
+    void applyToPlugin() override;
 
   private:
-    Ui::GainerWidget* ui;
+    Ui::GainerWidget *ui;
 };

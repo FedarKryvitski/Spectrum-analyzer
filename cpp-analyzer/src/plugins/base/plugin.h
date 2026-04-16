@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include <nlohmann/json.hpp>
 
 namespace Plugins
 {
@@ -15,6 +16,12 @@ class IPlugin
 
     virtual void reset()
     {
+    }
+
+    // TODO refactoring
+    virtual nlohmann::json getSettings() const
+    {
+        return {};
     }
 
     virtual std::string getName() const = 0;

@@ -7,6 +7,12 @@ namespace Ui
 class PluginsListForm;
 }
 
+namespace Plugins
+{
+class IPlugin;
+} // namespace Plugins
+
+class PluginItemWidget;
 class PluginController;
 
 class PluginsListForm : public QWidget
@@ -17,7 +23,7 @@ class PluginsListForm : public QWidget
     explicit PluginsListForm(QWidget *parent = nullptr);
     ~PluginsListForm();
 
-    void setController(PluginController* controller);
+    void setController(PluginController *controller);
 
   signals:
     void backRequested();
@@ -28,9 +34,11 @@ class PluginsListForm : public QWidget
 
   private:
     void init();
-    void showPluginWidget(QWidget* widget);
+    void clearLayout();
+    void openPluginDialog(Plugins::IPlugin *plugin);
+    PluginItemWidget *createItem(Plugins::IPlugin *plugin, const int index);
 
   private:
     Ui::PluginsListForm *ui;
-    PluginController* controller_{nullptr};
+    PluginController *controller_{nullptr};
 };

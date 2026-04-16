@@ -37,7 +37,9 @@ static double calculateVolume(const Buffer &buffer)
 
 } // namespace
 
-Pipeline::Pipeline() noexcept {}
+Pipeline::Pipeline() noexcept
+{
+}
 
 Buffer Pipeline::process(Buffer input)
 {
@@ -47,8 +49,10 @@ Buffer Pipeline::process(Buffer input)
     {
         std::lock_guard lock(mutex_);
 
-        for (auto& plugin : plugins_) {
-            if (plugin && plugin->isEnabled()) {
+        for (auto &plugin : plugins_)
+        {
+            if (plugin && plugin->isEnabled())
+            {
                 complexBuffer = plugin->process(std::move(complexBuffer));
             }
         }
@@ -73,7 +77,8 @@ void Pipeline::removePlugin(int index)
 {
     std::lock_guard lock(mutex_);
 
-    if (index >= 0 && index < static_cast<int>(plugins_.size())) {
+    if (index >= 0 && index < static_cast<int>(plugins_.size()))
+    {
         plugins_.erase(plugins_.begin() + index);
     }
 }
@@ -83,7 +88,8 @@ void Pipeline::movePlugin(int oldIndex, int newIndex)
     std::lock_guard lock(mutex_);
 
     int size = static_cast<int>(plugins_.size());
-    if (oldIndex < 0 || oldIndex >= size || newIndex < 0 || newIndex >= size) {
+    if (oldIndex < 0 || oldIndex >= size || newIndex < 0 || newIndex >= size)
+    {
         return;
     }
 
@@ -95,7 +101,8 @@ void Pipeline::togglePlugin(int index, bool enabled)
     std::lock_guard lock(mutex_);
 
     int size = static_cast<int>(plugins_.size());
-    if (index < 0 || index >= size) {
+    if (index < 0 || index >= size)
+    {
         return;
     }
 

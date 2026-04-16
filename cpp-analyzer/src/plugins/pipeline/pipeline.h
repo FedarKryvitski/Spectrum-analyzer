@@ -5,8 +5,8 @@
 #include "pipelinesource.h"
 
 #include <memory>
-#include <vector>
 #include <mutex>
+#include <vector>
 
 namespace Plugins
 {

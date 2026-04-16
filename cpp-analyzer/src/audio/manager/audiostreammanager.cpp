@@ -18,12 +18,13 @@ AudioStreamManager::~AudioStreamManager()
     stop();
 }
 
-void AudioStreamManager::start(const AudioSessionConfig &config, Plugins::Pipeline* pipeline)
+void AudioStreamManager::start(const AudioSessionConfig &config, Plugins::Pipeline *pipeline)
 {
     if (isRunning_)
         return;
 
-    workerThread_ = std::jthread([this, pipeline, config](std::stop_token stopToken) { run(config, pipeline, stopToken); });
+    workerThread_ =
+        std::jthread([this, pipeline, config](std::stop_token stopToken) { run(config, pipeline, stopToken); });
 }
 
 void AudioStreamManager::stop()
@@ -45,7 +46,7 @@ bool AudioStreamManager::isRunning() const
     return isRunning_;
 }
 
-void AudioStreamManager::run(AudioSessionConfig config, Plugins::Pipeline* pipeline, std::stop_token stopToken)
+void AudioStreamManager::run(AudioSessionConfig config, Plugins::Pipeline *pipeline, std::stop_token stopToken)
 {
     auto &recorder = config.inputType == InputType::Microphone ? audioDeviceRecorder_ : audioFileRecorder_;
 

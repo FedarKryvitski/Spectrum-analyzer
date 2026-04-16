@@ -23,7 +23,10 @@ class Gainer : public IPlugin
         return gainLevel_;
     }
 
-    std::string getName() const override { return "Gainer"; }
+    std::string getName() const override
+    {
+        return "Gainer";
+    }
 
     ComplexBuffer process(ComplexBuffer buffer) override;
 

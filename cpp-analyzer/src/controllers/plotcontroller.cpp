@@ -9,7 +9,7 @@ using namespace std::chrono_literals;
 
 constexpr auto kFPS = 60;
 constexpr auto kPlotUpdateInterval = 1000ms / kFPS;
-}
+} // namespace
 
 namespace Plot
 {
@@ -42,10 +42,10 @@ void PlotController::stop()
 
 void PlotController::clear()
 {
-    auto plots = { inputAmplitudePlot_.get(), outputAmplitudePlot_.get(),
-                  inputFrequencyPlot_.get(), outputFrequencyPlot_.get() };
+    auto plots = {inputAmplitudePlot_.get(), outputAmplitudePlot_.get(), inputFrequencyPlot_.get(),
+                  outputFrequencyPlot_.get()};
 
-    std::ranges::for_each(plots, [](auto* plot) {
+    std::ranges::for_each(plots, [](auto *plot) {
         plot->clear();
         plot->update();
     });

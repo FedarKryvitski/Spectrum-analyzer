@@ -1,6 +1,6 @@
 #include "analyzerform.h"
-#include "ui_analyzerform.h"
 #include "pluginslistform.h"
+#include "ui_analyzerform.h"
 
 #include "controllers/plotcontroller.h"
 #include "controllers/plugincontroller.h"
@@ -17,7 +17,8 @@ namespace
 constexpr auto kDefaultDeviceName = "default";
 }
 
-AnalyzerForm::AnalyzerForm(QWidget *parent) : QWidget(parent), ui(new Ui::AnalyzerForm), inputType_(InputType::Microphone)
+AnalyzerForm::AnalyzerForm(QWidget *parent)
+    : QWidget(parent), ui(new Ui::AnalyzerForm), inputType_(InputType::Microphone)
 {
     ui->setupUi(this);
 
@@ -27,8 +28,8 @@ AnalyzerForm::AnalyzerForm(QWidget *parent) : QWidget(parent), ui(new Ui::Analyz
 
     pluginController_ = std::make_unique<PluginController>(this);
 
-    plotController_ = std::make_unique<Plot::PlotController>(ui->inputAmplitudePlot, ui->inputFrequencyPlot, ui->outputAmplitudePlot,
-                                                             ui->outputFrequencyPlot, this);
+    plotController_ = std::make_unique<Plot::PlotController>(ui->inputAmplitudePlot, ui->inputFrequencyPlot,
+                                                             ui->outputAmplitudePlot, ui->outputFrequencyPlot, this);
 
     pluginsListForm_ = new PluginsListForm(this);
     pluginsListForm_->setController(pluginController_.get());
@@ -61,8 +62,10 @@ void AnalyzerForm::connectUi()
 
 void AnalyzerForm::connectAudio()
 {
-    connect(audioStreamManager_.get(), &AudioStreamManager::inputVolumeChanged, this, &AnalyzerForm::onInputVolumeChangedSlot);
-    connect(audioStreamManager_.get(), &AudioStreamManager::outputVolumeChanged, this, &AnalyzerForm::onOutputVolumeChangedSlot);
+    connect(audioStreamManager_.get(), &AudioStreamManager::inputVolumeChanged, this,
+            &AnalyzerForm::onInputVolumeChangedSlot);
+    connect(audioStreamManager_.get(), &AudioStreamManager::outputVolumeChanged, this,
+            &AnalyzerForm::onOutputVolumeChangedSlot);
 
     connect(audioStreamManager_.get(), &AudioStreamManager::frameReady, plotController_.get(),
             &Plot::PlotController::onFrameReady, Qt::QueuedConnection);
