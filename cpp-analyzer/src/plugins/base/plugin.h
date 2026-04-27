@@ -18,11 +18,9 @@ class IPlugin
     {
     }
 
-    // TODO refactoring
-    virtual nlohmann::json getSettings() const
-    {
-        return {};
-    }
+    virtual nlohmann::json getSettings() const = 0;
+
+    virtual void setSettings(const nlohmann::json &settings) = 0;
 
     virtual std::string getName() const = 0;
 

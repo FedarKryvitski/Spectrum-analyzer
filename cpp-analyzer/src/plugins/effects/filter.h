@@ -6,11 +6,11 @@
 namespace Plugins
 {
 
-class Limiter : public IPlugin
+class Filter : public IPlugin
 {
   public:
-    Limiter() = default;
-    ~Limiter() override = default;
+    Filter() = default;
+    ~Filter() override = default;
 
   public:
     void setSettings(const nlohmann::json &settings) override;
@@ -22,9 +22,8 @@ class Limiter : public IPlugin
     ComplexBuffer process(ComplexBuffer buffer) override;
 
   protected:
-    double thresholdDb_{};
-    double ceilingDb_{};
-    double releaseMs_{};
+    double lowCutoffFrequency_{0.0};
+    double highCutoffFrequency_{20000.0};
 };
 
 } // namespace Plugins

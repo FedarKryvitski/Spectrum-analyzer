@@ -1,5 +1,6 @@
 #include "plugincontroller.h"
 
+#include "effects/filter.h"
 #include "effects/gainer.h"
 #include "effects/limiter.h"
 
@@ -18,6 +19,10 @@ void PluginController::addPlugin(const QString &type)
     else if (type == "Limiter")
     {
         plugin = std::make_shared<Plugins::Limiter>();
+    }
+    else if (type == "Filter")
+    {
+        plugin = std::make_shared<Plugins::Filter>();
     }
 
     if (plugin)
@@ -47,5 +52,5 @@ void PluginController::togglePlugin(int index, bool enabled)
 
 QStringList PluginController::getAvailablePlugins() const
 {
-    return {"Gain", "Limiter"};
+    return {"Gain", "Limiter", "Filter"};
 }

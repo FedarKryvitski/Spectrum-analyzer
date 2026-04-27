@@ -13,20 +13,11 @@ class Gainer : public IPlugin
     ~Gainer() override = default;
 
   public:
-    void setGainLevel(const double gainLevel)
-    {
-        gainLevel_ = gainLevel;
-    }
+    void setSettings(const nlohmann::json &settings) override;
 
-    double getGainLevel() const
-    {
-        return gainLevel_;
-    }
+    nlohmann::json getSettings() const override;
 
-    std::string getName() const override
-    {
-        return "Gainer";
-    }
+    std::string getName() const override;
 
     ComplexBuffer process(ComplexBuffer buffer) override;
 

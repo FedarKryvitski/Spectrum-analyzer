@@ -2,77 +2,109 @@
 <ui version="4.0">
  <class>LimiterWidget</class>
  <widget class="QWidget" name="LimiterWidget">
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>197</width>
+    <height>272</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="rootLayout">
    <item>
-    <widget class="QLabel" name="labelTitle">
+    <widget class="QLabel" name="title">
+     <property name="styleSheet">
+      <string>font-size:16px;font-weight:bold;</string>
+     </property>
      <property name="text">
       <string>Limiter</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="styleSheet">
-      <string>font-size: 16px; font-weight: bold;</string>
+      <set>Qt::AlignmentFlag::AlignCenter</set>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QDoubleSpinBox" name="thresholdSpin">
-     <property name="prefix">
-      <string>Thresh: </string>
+    <widget class="QGroupBox" name="thresholdGroup">
+     <property name="title">
+      <string>Threshold</string>
      </property>
-     <property name="suffix">
-      <string> dB</string>
-     </property>
-     <property name="minimum">
-      <double>-60.0</double>
-     </property>
-     <property name="maximum">
-      <double>0.0</double>
-     </property>
-     <property name="value">
-      <double>-6.0</double>
-     </property>
+     <layout class="QGridLayout">
+      <item row="0" column="0">
+       <widget class="QSlider" name="thresholdSlider">
+        <property name="minimum">
+         <number>0</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="thresholdSpin"/>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
-    <widget class="QDoubleSpinBox" name="ceilingSpin">
-     <property name="prefix">
-      <string>Ceiling: </string>
+    <widget class="QGroupBox" name="ceilingGroup">
+     <property name="title">
+      <string>Ceiling</string>
      </property>
-     <property name="suffix">
-      <string> dB</string>
-     </property>
-     <property name="minimum">
-      <double>-20.0</double>
-     </property>
-     <property name="maximum">
-      <double>0.0</double>
-     </property>
-     <property name="value">
-      <double>0.0</double>
-     </property>
+     <layout class="QGridLayout">
+      <item row="0" column="0">
+       <widget class="QSlider" name="ceilingSlider">
+        <property name="minimum">
+         <number>0</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="ceilingSpin"/>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
-    <widget class="QSpinBox" name="releaseSpin">
-     <property name="prefix">
-      <string>Release: </string>
+    <widget class="QGroupBox" name="releaseGroup">
+     <property name="title">
+      <string>Release (ms)</string>
      </property>
-     <property name="suffix">
-      <string> ms</string>
-     </property>
-     <property name="minimum">
-      <number>1</number>
-     </property>
-     <property name="maximum">
-      <number>1000</number>
-     </property>
-     <property name="value">
-      <number>100</number>
-     </property>
+     <layout class="QGridLayout">
+      <item row="0" column="0">
+       <widget class="QSlider" name="releaseSlider">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>1000</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="releaseSpin">
+        <property name="singleStep">
+         <number>10</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
  </widget>
+ <resources/>
+ <connections/>
 </ui>

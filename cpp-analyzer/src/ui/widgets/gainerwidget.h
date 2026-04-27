@@ -15,6 +15,11 @@ class GainerWidget : public IPluginWidget
     void updateFromPlugin() override;
     void applyToPlugin() override;
 
+  protected:
+    void update() override;
+
   private:
     Ui::GainerWidget *ui;
+
+    double gainValue_{};
 };

@@ -22,5 +22,8 @@ class IPluginWidget : public QWidget
     virtual void applyToPlugin() = 0;
 
   protected:
-    Plugins::IPlugin *plugin_;
+    virtual void update() = 0;
+
+  protected:
+    Plugins::IPlugin *plugin_{nullptr};
 };

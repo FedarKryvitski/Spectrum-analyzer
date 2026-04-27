@@ -1,6 +1,7 @@
 #include "pluginwidgetfactory.h"
 
 #include "base/plugin.h"
+#include "filterwidget.h"
 #include "gainerwidget.h"
 #include "limiterwidget.h"
 
@@ -15,6 +16,8 @@ IPluginWidget *createPluginWidget(IPlugin *plugin, QWidget *parent)
         return new GainerWidget(plugin, parent);
     else if (type == "Limiter")
         return new LimiterWidget(plugin, parent);
+    else if (type == "Filter")
+        return new FilterWidget(plugin, parent);
 
     return nullptr;
 }

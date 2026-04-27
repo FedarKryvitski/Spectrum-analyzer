@@ -14,6 +14,13 @@ class LimiterWidget : public IPluginWidget
     void updateFromPlugin() override;
     void applyToPlugin() override;
 
+  protected:
+    void update() override;
+
   private:
     Ui::LimiterWidget *ui;
+
+    double thresholdDb_{};
+    double ceilingDb_{};
+    double releaseMs_{};
 };
