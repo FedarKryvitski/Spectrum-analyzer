@@ -20,7 +20,7 @@ public:
     void clearErrorMessage();
 
 signals:
-    void registrationSubmitted(const QString &login,
+    void registrationSubmitted(const QString &email,
                                const QString &password,
                                const QString &passwordConfirm,
                                const QString &username,

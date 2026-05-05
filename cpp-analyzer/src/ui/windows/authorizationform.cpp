@@ -36,7 +36,7 @@ void AuthorizationForm::clearErrorMessage()
 void AuthorizationForm::onLoginButtonClicked()
 {
     clearErrorMessage();
-    emit authorizationSubmitted(ui->loginLineEdit->text(), ui->passwordLineEdit->text());
+    emit authorizationSubmitted(ui->emailLineEdit->text(), ui->passwordLineEdit->text());
 }
 
 void AuthorizationForm::onBackButtonClicked()

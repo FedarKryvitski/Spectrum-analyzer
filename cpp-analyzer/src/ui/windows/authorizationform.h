@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AUTHORIZATIONFORM_H
+#define AUTHORIZATIONFORM_H
 
 #include <QWidget>
 
@@ -19,7 +20,7 @@ public:
     void clearErrorMessage();
 
 signals:
-    void authorizationSubmitted(const QString &login, const QString &password);
+    void authorizationSubmitted(const QString &email, const QString &password);
     void backRequested();
 
 private slots:
@@ -30,3 +31,5 @@ private slots:
 private:
     Ui::AuthorizationForm *ui;
 };
+
+#endif // AUTHORIZATIONFORM_H

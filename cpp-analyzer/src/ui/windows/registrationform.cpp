@@ -56,7 +56,7 @@ void RegistrationForm::onPremiumButtonClicked()
 void RegistrationForm::onRegisterButtonClicked()
 {
     clearErrorMessage();
-    emit registrationSubmitted(ui->loginLineEdit->text(),
+    emit registrationSubmitted(ui->emailLineEdit->text(),
                                ui->passwordLineEdit->text(),
                                ui->passwordConfirmLineEdit->text(),
                                ui->usernameLineEdit->text(),
