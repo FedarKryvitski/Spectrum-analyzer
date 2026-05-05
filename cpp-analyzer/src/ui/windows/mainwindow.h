@@ -10,7 +10,9 @@ class MainWindow;
 QT_END_NAMESPACE
 
 class AnalyzerForm;
-class PluginsListForm;
+class RegistrationForm;
+class AuthorizationForm;
+class QWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -22,10 +24,21 @@ class MainWindow : public QMainWindow
 
   private slots:
     void onStartClicked();
+    void onLoginClicked();
+    void onRegisterClicked();
     void onBackFromAnalyzer();
+    void onBackFromAuthOrRegistration();
+    void onAuthorizationSubmitted(const QString &login, const QString &password);
+    void onRegistrationSubmitted(const QString &login,
+                                 const QString &password,
+                                 const QString &passwordConfirm,
+                                 const QString &username,
+                                 bool premiumUser);
 
   private:
     Ui::MainWindow *ui;
 
     AnalyzerForm *analyzerForm_{nullptr};
+    AuthorizationForm *authForm_{nullptr};
+    RegistrationForm *registrationForm_{nullptr};
 };
