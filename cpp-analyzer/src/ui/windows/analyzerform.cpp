@@ -50,10 +50,29 @@ AnalyzerForm::~AnalyzerForm()
     delete ui;
 }
 
+void AnalyzerForm::setInputDevices(const QStringList &devices)
+{
+    ui->inputDeviceComboBox->clear();
+    ui->inputDeviceComboBox->addItems(devices);
+    if (!devices.isEmpty()) {
+        selectedInputDevice_ = devices.first();
+    }
+}
+
+void AnalyzerForm::setOutputDevices(const QStringList &devices)
+{
+    ui->outputDeviceComboBox->clear();
+    ui->outputDeviceComboBox->addItems(devices);
+    if (!devices.isEmpty()) {
+        selectedOutputDevice_ = devices.first();
+    }
+}
+
 void AnalyzerForm::connectUi()
 {
     connect(ui->recordingButton, &QPushButton::toggled, this, &AnalyzerForm::onRecordingButtonToggledSlot);
-    connect(ui->deviceComboBox, &QComboBox::currentTextChanged, this, &AnalyzerForm::onDeviceChangedSlot);
+    connect(ui->inputDeviceComboBox, QOverload<const QString &>::of(&QComboBox::currentTextChanged), this, &AnalyzerForm::onInputDeviceChangedSlot);
+    connect(ui->outputDeviceComboBox, QOverload<const QString &>::of(&QComboBox::currentTextChanged), this, &AnalyzerForm::onOutputDeviceChangedSlot);
     connect(ui->microphoneRadioButton, &QRadioButton::toggled, this, &AnalyzerForm::onInputTypeButtonSlot);
     connect(ui->selectFileButton, &QPushButton::clicked, this, &AnalyzerForm::onFileDialogButtonSlot);
     connect(ui->backToWelcomeButton, &QPushButton::clicked, this, &AnalyzerForm::onExitPressedSlot);
@@ -71,14 +90,14 @@ void AnalyzerForm::connectAudio()
             &Plot::PlotController::onFrameReady, Qt::QueuedConnection);
 
     connect(audioStreamManager_.get(), &AudioStreamManager::errorOccurred, this, [this](const QString &message) {
-        QMessageBox::warning(this, "Error", message);
+        QMessageBox::warning(this, QStringLiteral("Ошибка"), message);
 
         {
             QSignalBlocker blocker(ui->recordingButton);
             ui->recordingButton->setChecked(false);
         }
 
-        ui->recordingButton->setText("Start");
+        ui->recordingButton->setText(QStringLiteral("Старт"));
         updateControlsState(false);
         plotController_->stop();
     });
@@ -89,24 +108,28 @@ void AnalyzerForm::connectAudio()
 
 void AnalyzerForm::init()
 {
-    ui->deviceComboBox->addItem(kDefaultDeviceName);
-    selectedDevice_ = kDefaultDeviceName;
+    ui->inputDeviceComboBox->addItem(kDefaultDeviceName);
+    selectedInputDevice_ = kDefaultDeviceName;
+
+    ui->outputDeviceComboBox->addItem(kDefaultDeviceName);
+    selectedOutputDevice_ = kDefaultDeviceName;
 
     ui->microphoneRadioButton->setChecked(true);
 
-    ui->deviceComboBox->setVisible(true);
+    ui->inputDeviceComboBox->setVisible(true);
+    ui->outputDeviceComboBox->setVisible(true);
     ui->selectFileButton->setVisible(false);
     ui->selectedFileLabel->setVisible(false);
 
     ui->recordingButton->setEnabled(true);
-    ui->recordingButton->setText("Start");
+    ui->recordingButton->setText(QStringLiteral("Старт"));
 }
 
 AudioSessionConfig AnalyzerForm::buildSessionConfig() const
 {
     AudioSessionConfig config;
     config.inputType = inputType_;
-    config.source = inputType_ == InputType::Microphone ? selectedDevice_ : selectedFilePath_;
+    config.source = inputType_ == InputType::Microphone ? selectedInputDevice_ : selectedFilePath_;
     return config;
 }
 
@@ -114,7 +137,7 @@ bool AnalyzerForm::validateConfig(const AudioSessionConfig &config)
 {
     if (config.source.isEmpty())
     {
-        QMessageBox::warning(this, "Error", "Please select input.");
+        QMessageBox::warning(this, QStringLiteral("Ошибка"), QStringLiteral("Пожалуйста, выберите источник ввода."));
         return false;
     }
 
@@ -136,27 +159,32 @@ void AnalyzerForm::onRecordingButtonToggledSlot(bool checked)
         plotController_->start();
         audioStreamManager_->start(config, pluginController_->getPipeline());
 
-        ui->recordingButton->setText("Stop");
+        ui->recordingButton->setText(QStringLiteral("Стоп"));
     }
     else
     {
         audioStreamManager_->stop();
         plotController_->stop();
 
-        ui->recordingButton->setText("Start");
+        ui->recordingButton->setText(QStringLiteral("Старт"));
     }
 
     updateControlsState(checked);
 }
 
-void AnalyzerForm::onDeviceChangedSlot(const QString &device)
+void AnalyzerForm::onInputDeviceChangedSlot(const QString &device)
 {
-    selectedDevice_ = device;
+    selectedInputDevice_ = device;
 
     if (inputType_ == InputType::Microphone)
     {
-        ui->recordingButton->setEnabled(!selectedDevice_.isEmpty());
+        ui->recordingButton->setEnabled(!selectedInputDevice_.isEmpty());
     }
+}
+
+void AnalyzerForm::onOutputDeviceChangedSlot(const QString &device)
+{
+    selectedOutputDevice_ = device;
 }
 
 void AnalyzerForm::onInputTypeButtonSlot(bool checked)
@@ -165,11 +193,11 @@ void AnalyzerForm::onInputTypeButtonSlot(bool checked)
 
     ui->selectFileButton->setVisible(!checked);
     ui->selectedFileLabel->setVisible(!checked);
-    ui->deviceComboBox->setVisible(checked);
+    ui->inputDeviceComboBox->setVisible(checked);
 
     if (inputType_ == InputType::Microphone)
     {
-        ui->recordingButton->setEnabled(!selectedDevice_.isEmpty());
+        ui->recordingButton->setEnabled(!selectedInputDevice_.isEmpty());
     }
     else
     {
@@ -181,8 +209,8 @@ void AnalyzerForm::onInputTypeButtonSlot(bool checked)
 
 void AnalyzerForm::onFileDialogButtonSlot()
 {
-    QString filePath = QFileDialog::getOpenFileName(this, "Select audio file", "",
-                                                    "Audio Files (*.wav *.mp3 *.flac *.ogg);;All Files (*.*)");
+    QString filePath = QFileDialog::getOpenFileName(this, QStringLiteral("Выберите аудиофайл"), "",
+                                                    QStringLiteral("Аудиофайлы (*.wav *.mp3 *.flac *.ogg);;Все файлы (*.*)"));
 
     if (filePath.isEmpty())
         return;
@@ -218,7 +246,7 @@ void AnalyzerForm::onStreamFinishedSlot()
         ui->recordingButton->setChecked(false);
     }
 
-    ui->recordingButton->setText("Start");
+    ui->recordingButton->setText(QStringLiteral("Старт"));
     updateControlsState(false);
 }
 
@@ -226,7 +254,8 @@ void AnalyzerForm::updateControlsState(bool isRecording)
 {
     ui->microphoneRadioButton->setEnabled(!isRecording);
     ui->fileRadioButton->setEnabled(!isRecording);
-    ui->deviceComboBox->setEnabled(!isRecording);
+    ui->inputDeviceComboBox->setEnabled(!isRecording);
+    ui->outputDeviceComboBox->setEnabled(!isRecording);
     ui->selectFileButton->setEnabled(!isRecording);
 
     ui->inputVolumeBar->setValue(0);

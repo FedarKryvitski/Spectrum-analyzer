@@ -29,12 +29,16 @@ class AnalyzerForm : public QWidget
     explicit AnalyzerForm(QWidget *parent = nullptr);
     ~AnalyzerForm();
 
+    void setInputDevices(const QStringList &devices);
+    void setOutputDevices(const QStringList &devices);
+
   signals:
     void backRequested();
 
   private slots:
     void onRecordingButtonToggledSlot(bool checked);
-    void onDeviceChangedSlot(const QString &device);
+    void onInputDeviceChangedSlot(const QString &device);
+    void onOutputDeviceChangedSlot(const QString &device);
     void onInputTypeButtonSlot(bool checked);
     void onFileDialogButtonSlot();
     void onInputVolumeChangedSlot(double volume);
@@ -62,6 +66,7 @@ class AnalyzerForm : public QWidget
     std::unique_ptr<Plot::PlotController> plotController_;
 
     InputType inputType_;
-    QString selectedDevice_;
+    QString selectedInputDevice_;
+    QString selectedOutputDevice_;
     QString selectedFilePath_;
 };
